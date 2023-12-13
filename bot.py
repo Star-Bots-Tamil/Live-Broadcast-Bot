@@ -4,7 +4,6 @@ from telethon import TelegramClient, events, Button
 from telethon.sessions import StringSession
 from decouple import config
 from telethon.tl.functions.users import GetFullUserRequest
-from utils import GET_ID
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -67,37 +66,28 @@ async def help(event):
 
 @datgbot.on(events.NewMessage(pattern="/id"))
 async def get_id(event):
-    chat_id = event.sender_id
-    sndmsg = event.client.send_message(chat_id)
-    nodml = GET_ID(event)
-    
-    if event.is_reply:
-        reply_msg = await event.get_reply_message()
-        sender = await nodml.get_sender_id(reply_msg)
-
-        message = "**Message Data**\n\n"
-        message += (
-            f"**Sender**\n{sender['username']}"
-            f"Chat ID : `{sender['chat_id']}`\n"
-            f"User ID : `{sender['user_id']}`\n"
-            f"Message ID : `{sender['message_id']}`\n" # ID pesan di chatnya bukan di channelnya
+    if event.reply_to_msg_id:
+        await event.get_input_chat()
+        r_msg = await event.get_reply_message()
+        if r_msg.media:
+            bot_api_file_id = pack_bot_file_id(r_msg.media)
+            await datgbot.send_message(
+                event.chat_id,
+                "**Chat ID :- `{}`\nUser ID :- `{}`**".format(
+                    str(event.chat_id), str(r_msg.from_id)
+                ),
+            )
+        else:
+            await datgbot.send_message(
+                event.chat_id,
+                "**Chat ID :- `{}`\nUser ID :- `{}`**".format(
+                    str(event.chat_id), str(r_msg.from_id)
+                ),
+            )
+    else:
+        await datgbot.send_message(
+            event.chat_id, "**Chat ID :- `{}`**".format(str(event.chat_id))
         )
-
-        try:
-            forwarded = await nodml.get_forwarded_id(reply_msg)
-            message += (
-                f"\n**Forwarded from**\n{forwarded['username']}"
-                f"ID : `{forwarded['id']}`\n"
-                f"Name : `{forwarded['name']}`\n"
-                f"{forwarded['message_id']}\n" # ID pesan di chatnya bukan di channelnya
-            )
-        except:
-            message += (
-                f"\n**Forwarded from**\nPrivate Chat\n"
-            )
-
-        sndmsg.message = message
-        await nodml.send_message_normal(sndmsg)
 
 # First Forward 
 async def replace_links_in_message(message):
