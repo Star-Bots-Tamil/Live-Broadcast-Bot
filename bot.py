@@ -1,7 +1,6 @@
 import logging
 import re
 from telethon import TelegramClient, events, Button
-from pyrogram import Client, filters
 from telethon.sessions import StringSession
 from decouple import config
 
