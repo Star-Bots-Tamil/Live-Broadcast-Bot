@@ -1,4 +1,2 @@
 python-decouple
 telethon
-pyrogram
-TgCrypto
