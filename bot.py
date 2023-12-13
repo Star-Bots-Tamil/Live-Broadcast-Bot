@@ -43,6 +43,7 @@ See /help for more Details.
 Maintained By :- [Star Bots Tamil](https://t.me/Star_Bots_Tamil)""",
         buttons=[
             Button.url("Update Channel", url="https://t.me/Star_Bots_Tamil"),
+        ],[
             Button.url("Add me to Your Channel", url="https://t.me/Auto_Forward_Star_Bot?startchannel=StarBots&admin"),
             Button.url("Add My Channels", url="https://t.me/TG_Karthik"),
         ],
