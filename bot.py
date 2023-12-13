@@ -35,12 +35,12 @@ except Exception as e:
 @datgbot.on(events.NewMessage(pattern="/start"))
 async def start(event):
     await event.reply(
-        f"""Hi 👋🏻 {event.sender.first_name},
+        f"""**Hi 👋🏻 {event.sender.mention},
 I'm [Auto Forward Star Bots](https://t.me/Auto_Forward_Star_Bot) to Maintain Your Channels. I am very useful for the Channel Admin who have many Channels.
 
 See /help for more Details.
 
-Maintained By :- [Star Bots Tamil](https://t.me/Star_Bots_Tamil)""",
+Maintained By :- [Star Bots Tamil](https://t.me/Star_Bots_Tamil)**""",
         buttons=[
             Button.url("Update Channel", url="https://t.me/Star_Bots_Tamil"),
         ],[
