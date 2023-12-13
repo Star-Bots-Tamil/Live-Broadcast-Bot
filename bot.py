@@ -3,6 +3,8 @@ import re
 from telethon import TelegramClient, events, Button
 from telethon.sessions import StringSession
 from decouple import config
+from aiohttp import web
+from web_support import web_server
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -26,6 +28,10 @@ try:
 #    user_client = TelegramClient(StringSession(string_session), api_id, api_hash)
 #    user_client.start()
     bot_token = config("TOKEN")
+    app = web.AppRunner(await web_server())
+    await app.setup()
+    bind_address = "0.0.0.0"
+    await web.TCPSite(app, bind_address, 8080).start()
     source_channel = config("SOURCE_CHANNEL", cast=int)
     source_channel2 = config("SOURCE_CHANNEL2", cast=int)
     admin_user_id = config("ADMIN_USER_ID", cast=int)
