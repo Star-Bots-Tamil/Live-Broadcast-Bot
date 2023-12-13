@@ -1,3 +1,5 @@
 python-decouple
 telethon
 python-telegram-bot
+aiohttp
+flask
