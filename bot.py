@@ -75,6 +75,17 @@ async def about(event):
         link_preview=False,
     )
 
+@datgbot.on(events.NewMessage(pattern="/forward")
+async def forward(event):
+    await event.reply("**Hello 👋🏻 {event.sender.first_name}\n\nRequest Your Forward Channels**",
+        buttons=[
+            [Button.url("Update Channel", url="https://t.me/Star_Bots_Tamil")],
+            [Button.url("Add me to Your Channel", url="https://t.me/Auto_Forward_Star_Bot?startchannel=StarBots&admin"),
+            Button.url("Add My Channels", url="https://t.me/TG_Karthik")],
+        ],
+        link_preview=False,
+    )
+
 # First Forward 
 async def replace_links_in_message(message):
     if replacement_link:
