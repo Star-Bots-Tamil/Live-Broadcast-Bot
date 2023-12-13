@@ -64,7 +64,7 @@ async def help(event):
         link_preview=False,
     )
 
-@datgbot.on(events.NewMessage(pattern="/about")
+@datgbot.on(events.NewMessage(pattern="/about"))
 async def about(event):
     await event.reply("**🤖 My Name :- [Auto Forward Star Bots](https://t.me/Auto_Forward_Star_Bot)\n\n🧑🏻‍💻 Developer :- Karthik\n\n🧑🏻‍🤝‍🧑🏻 My Best Friend :- {event.sender.first_name}\n📝 Language :- Python3\n\n📚 Framework :- Telethon\n\n📡 Hosted on :- VPS\n\n📢 Updates Channel :- [Star Bots Tamil](https://t.me/Star_Bots_Tamil)**",
         buttons=[
