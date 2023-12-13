@@ -56,10 +56,13 @@ Maintained By :- [Star Bots Tamil](https://t.me/Star_Bots_Tamil)**""",
 @datgbot.on(events.NewMessage(pattern="/help"))
 async def help(event):
     await event.reply("**Help\n\n❄ About This Bot :-\n➡ This Bot will Send all New Posts From the Source Channel to one or More Channels (without the Forwarded Tag)!\n\n❄ How to use me?\n🏮 Add the Bot to the Channels.\n🏮 Make me an Admin in Destination Channels.\n🏮Now all new Messages Would be Autoposted on the Linked Channels.!!\n\nLiked the Bot? [Get Source Code](https://t.me/TG_Karthik)**",
-        except Exception as e:
-            logger.error(f"Error processing /help command: {str(e)}")
-    else:
-        await event.reply("You are not authorized to use the bot.")
+        buttons=[
+            [Button.url("Update Channel", url="https://t.me/Star_Bots_Tamil")],
+            [Button.url("Add me to Your Channel", url="https://t.me/Auto_Forward_Star_Bot?startchannel=StarBots&admin"),
+            Button.url("Add My Channels", url="https://t.me/TG_Karthik")],
+        ],
+        link_preview=False,
+    )
 
 # First Forward 
 async def replace_links_in_message(message):
