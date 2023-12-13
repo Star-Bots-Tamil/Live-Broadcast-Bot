@@ -1,6 +1,6 @@
 import logging
 import re
-from telethon import TelegramClient, events
+from telethon import TelegramClient, events, Button
 from telethon.sessions import StringSession
 from decouple import config
 from telethon.tl.functions.users import GetFullUserRequest
@@ -34,15 +34,19 @@ except Exception as e:
 
 @datgbot.on(events.NewMessage(pattern="/start"))
 async def start(event):
-    user_id = event.sender_id
-    if user_id == admin_user_id:
-        try:
-            ok = await datgbot(GetFullUserRequest(user_id))
-            await event.reply(f"**Hi!**\n\n**I am a channel auto-forward bot!! Read /help to know more!\n\n[Contact Owner](https://t.me/WolfOfficials)..", link_preview=False)
-        except Exception as e:
-            logger.error(f"Error processing /start command: {str(e)}")
-    else:
-        await event.reply("You are not authorized to use the bot.")
+    await event.reply(
+        f"Hi 👋🏻 {event.sender.first_name},
+I'm {event.bot.first_name} to Maintain Your Channels. I am very useful for the Channel Admin who have many Channels.
+
+See /help for more Details.
+
+Maintained By :- [Star Bots Tamil](https://t.me/Star_Bots_Tamil)",
+        buttons=[
+            Button.url("Update Channel", url="https://t.me/Star_Bots_Tamil"),
+            Button.url("Add My Channels", url="https://t.me/TG_Karthik"),
+        ],
+        link_preview=False,
+    )
 
 @datgbot.on(events.NewMessage(pattern="/help"))
 async def help(event):
