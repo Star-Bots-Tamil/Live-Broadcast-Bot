@@ -1,12 +1,12 @@
 from telegram.ext import ApplicationBuilder
-from os import getenv
+from os import environ
 from telegram import Update
 from telegram.constants import ParseMode
 from telegram.ext import filters, MessageHandler
 
 LOGGER = logging.getLogger(__name__)
 
-BOT_TOKEN = getenv("BOT_TOKEN", "6460834619:AAHyB5jkF2QXpSaCW620YmbdvFVztfcHwSM")
+BOT_TOKEN = environ.get("BOT_TOKEN", "6460834619:AAHyB5jkF2QXpSaCW620YmbdvFVztfcHwSM")
 if not BOT_TOKEN:
     LOGGER.error("No BOT_TOKEN token provided!")
     exit()
