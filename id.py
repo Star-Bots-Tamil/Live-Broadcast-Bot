@@ -6,7 +6,7 @@ from telegram.ext import filters, MessageHandler
 
 LOGGER = logging.getLogger(__name__)
 
-BOT_TOKEN = environ.get("BOT_TOKEN", "6460834619:AAHyB5jkF2QXpSaCW620YmbdvFVztfcHwSM")
+BOT_TOKEN = environ.get("BOT_TOKEN", "")
 if not BOT_TOKEN:
     LOGGER.error("No BOT_TOKEN token provided!")
     exit()
