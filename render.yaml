@@ -1,5 +1,5 @@
 services:
-  - type: web
+  - type: worker
     plan: free
     name: Live-Broadcast-Bot
     env: python
