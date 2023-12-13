@@ -41,6 +41,7 @@ async def get_id(update: Update, _):
         parse_mode=ParseMode.HTML,
     )
 
+bot = ApplicationBuilder().token(BOT_TOKEN).build()
 
 GET_ID_HANDLER = MessageHandler(
     filters.COMMAND & filters.Regex(r"^/id") & filters.ChatType.CHANNEL,
@@ -48,5 +49,3 @@ GET_ID_HANDLER = MessageHandler(
 )
 
 bot.add_handler(GET_ID_HANDLER)
-
-bot = ApplicationBuilder().token(BOT_TOKEN).build()
