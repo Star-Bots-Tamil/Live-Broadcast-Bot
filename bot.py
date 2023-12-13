@@ -4,7 +4,7 @@ from telethon import TelegramClient, events, Button
 from telethon.sessions import StringSession
 from decouple import config
 from telethon.tl.functions.users import GetFullUserRequest
-from telethon.utils import pack_bot_file_id
+from utils import GET_ID
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -64,10 +64,9 @@ async def help(event):
 async def get_id(event):
     chat_id = event.sender_id
     sndmsg = client.send_message_to_user(chat_id)
-    dml = dml_func.DMLHandle(chat_id)
-    nodml = nodml_func.NoDMLFunctions(event)
+    nodml = GET_ID(event)
     
-    if dml.check_user() and event.is_reply:
+    if event.is_reply:
         reply_msg = await event.get_reply_message()
         sender = await nodml.get_sender_id(reply_msg)
 
