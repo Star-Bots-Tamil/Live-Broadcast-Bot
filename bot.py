@@ -1,6 +1,7 @@
 import logging
 import re
 from telethon import TelegramClient, events, Button
+from pyrogram import Client, filters
 from telethon.sessions import StringSession
 from decouple import config
 from telethon.tl.functions.users import GetFullUserRequest
@@ -20,6 +21,13 @@ replacement_link2 = config("MY_LINK2", default=None)
 replacement_username2 = config("MY_USERNAME2", default=None)
 
 logger.info("Starting...")
+
+Bot = Client(
+    "Info Bot",
+    bot_token=config("TOKEN"),
+    api_id=int(config("APP_ID")),
+    api_hash=config("HASH")
+)
 
 try:
     api_id = config("APP_ID", cast=int)
@@ -65,30 +73,36 @@ async def help(event):
     else:
         await event.reply("You are not authorized to use the bot.")
 
-@datgbot.on(events.NewMessage(pattern="/id"))
-async def get_id(event):
-    if event.reply_to_msg_id:
-        await event.get_input_chat()
-        r_msg = await event.get_reply_message()
-        if r_msg.media:
-            bot_api_file_id = pack_bot_file_id(r_msg.media)
-            await datgbot.send_message(
-                event.chat_id,
-                "**Chat ID :- `{}`\nUser ID :- `{}`**".format(
-                    str(event.chat_id), str(r_msg.from_id)
-                ),
-            )
-        else:
-            await datgbot.send_message(
-                event.chat_id,
-                "**Chat ID :- `{}`\nUser ID :- {} or `{}`**".format(
-                    str(event.chat_id), str(r_msg.from_id), pack_bot_file_id
-                ),
-            )
-    else:
-        await datgbot.send_message(
-            event.chat_id, "**Chat ID :- `{}`**".format(str(event.chat_id))
-        )
+@Bot.on_message(filters.command("id"))
+async def get_id(_, m):
+    reply = m.reply_to_message
+    _reply = ""
+    if not reply:
+        no_reply = f"Yᴏᴜʀ ɪᴅ: {m.from_user.id}\n"
+        no_reply += f"Tʜɪs ᴄʜᴀᴛ ɪᴅ: {m.chat.id}\n"
+        no_reply += f"Mᴇssᴀɢᴇ ɪᴅ: {m.id}"
+        await m.reply_text(text=(no_reply))
+    if reply.from_user:
+        _reply += f"Yᴏᴜʀ ɪᴅ: {m.from_user.id}\n"
+        _reply += f"Rᴇᴘʟɪᴇᴅ Usᴇʀ ɪᴅ: {reply.from_user.id}\n"
+        _reply += f"Tʜɪs Cʜᴀᴛ ɪᴅ: {m.chat.id}\n\n"
+        _reply += f"ʀᴇᴘʟɪᴇᴅ ᴍᴇssᴀɢᴇ ɪᴅ: {reply.id}\n"
+    if reply.sender_chat:
+        _reply += f"Cʜᴀɴɴᴇʟ  ɪᴅ: {reply.sender_chat.id}\n"
+    if reply.sticker:
+        _reply += f"Sᴛɪᴄᴋᴇʀ ɪᴅ: {reply.sticker.file_id}"
+    elif reply.animation:
+        _reply += f"Aɴɪᴍᴀᴛɪᴏɴ ɪᴅ: {reply.animation.file_id}"
+    elif reply.document:
+        _reply += f"Dᴏᴄᴜᴍᴇɴᴛ ɪᴅ: {reply.document.file_id}"
+    elif reply.audio:
+        _reply += f"Aᴜᴅɪᴏ ɪᴅ: {reply.audio.file_id}"
+    elif reply.video:
+        _reply += f"Vɪᴅᴇᴏ ɪᴅ: {reply.video.file_id}"
+    elif reply.photo:
+        _reply += f"Pʜᴏᴛᴏ ɪᴅ: {reply.photo.file_id}"
+    await reply.reply_text(_reply)
+    await m.delete()
 
 # First Forward 
 async def replace_links_in_message(message):
