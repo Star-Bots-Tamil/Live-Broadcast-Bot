@@ -36,7 +36,7 @@ except Exception as e:
 async def start(event):
     await event.reply(
         f"""Hi 👋🏻 {event.sender.first_name},
-I'm {event.bot.first_name} to Maintain Your Channels. I am very useful for the Channel Admin who have many Channels.
+I'm [Auto Forward Star Bots](https://t.me/Auto_Forward_Star_Bot) to Maintain Your Channels. I am very useful for the Channel Admin who have many Channels.
 
 See /help for more Details.
 
