@@ -124,7 +124,7 @@ async def replace_links_in_message2(message):
 
 async def replace_links_in_caption2(caption):
     if replacement_link2:
-        caption = re.sub(r'https?://t\.me\S*|t\.me\S*', replacement_link28, caption)
+        caption = re.sub(r'https?://t\.me\S*|t\.me\S*', replacement_link2, caption)
     if replacement_username2:
         caption = re.sub(r'@[\w]+', replacement_username2, caption)
     return caption
