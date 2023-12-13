@@ -35,7 +35,7 @@ except Exception as e:
 @datgbot.on(events.NewMessage(pattern="/start"))
 async def start(event):
     await event.reply(
-        f"""**Hi 👋🏻 {event.sender.mention},
+        f"""**Hi 👋🏻 {event.sender.first_name},
 I'm [Auto Forward Star Bots](https://t.me/Auto_Forward_Star_Bot) to Maintain Your Channels. I am very useful for the Channel Admin who have many Channels.
 
 See /help for more Details.
