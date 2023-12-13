@@ -55,7 +55,7 @@ Maintained By :- [Star Bots Tamil](https://t.me/Star_Bots_Tamil)**""",
 
 @datgbot.on(events.NewMessage(pattern="/help"))
 async def help(event):
-    await event.reply("**Help\n\n❄ About This Bot :-\n➡ This Bot will Send all New Posts From the Source Channel to one or More Channels (without the Forwarded Tag)!\n\n❄ How to use me?\n🏮 Add the Bot to the Channels.\n🏮 Make me an Admin in Destination Channels.\n🏮Now all new Messages Would be Autoposted on the Linked Channels.!!\n\nLiked the Bot? [Get Source Code](https://t.me/TG_Karthik)**",
+    await event.reply("**Hi 👋🏻 {event.sender.first_name},\n\nHere is a list of usable Commands :-\n♦️ /start :- Check if 😊 I'm Alive\n♦️ /forward :- to Request to add Source And Distinction Channels ID (Direct Request to Admin)\n♦️ /help :- This Bot's Features \n♦️ /about :- to Know About Me 😁\n\n\nHelp\n\n❄ About This Bot :-\n➡ This Bot will Send all New Posts From the Source Channel to one or More Channels (without the Forwarded Tag)!\n\n❄ How to use me?\n🏮 Add the Bot to the Channels.\n🏮 Make me an Admin in Destination Channels.\n🏮Now all new Messages Would be Autoposted on the Linked Channels.!!\n\nLiked the Bot? [Get Source Code](https://t.me/TG_Karthik)**",
         buttons=[
             [Button.url("Update Channel", url="https://t.me/Star_Bots_Tamil")],
             [Button.url("Add me to Your Channel", url="https://t.me/Auto_Forward_Star_Bot?startchannel=StarBots&admin"),
