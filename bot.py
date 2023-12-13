@@ -54,7 +54,8 @@ Maintained By :- [Star Bots Tamil](https://t.me/Star_Bots_Tamil)**""",
 
 @datgbot.on(events.NewMessage(pattern="/help"))
 async def help(event):
-    await event.reply("""**Hi 👋🏻 {event.sender.first_name},
+    await event.reply(
+        f"""**Hi 👋🏻 {event.sender.first_name},
     
 Here is a list of usable Commands :-
 ♦️ /start :- Check if 😊 I'm Alive
@@ -85,7 +86,8 @@ Liked the Bot? [Get Source Code](https://t.me/TG_Karthik)**""",
 
 @datgbot.on(events.NewMessage(pattern="/about"))
 async def about(event):
-    await event.reply("""**🤖 My Name :- [Auto Forward Star Bots](https://t.me/Auto_Forward_Star_Bot)
+    await event.reply(
+        f"""**🤖 My Name :- [Auto Forward Star Bots](https://t.me/Auto_Forward_Star_Bot)
     
 🧑🏻‍💻 Developer :- Karthik
 
@@ -108,7 +110,8 @@ async def about(event):
 
 @datgbot.on(events.NewMessage(pattern="/forward"))
 async def forward(event):
-    await event.reply("""**Hello 👋🏻 {event.sender.first_name}
+    await event.reply(
+        f"""**Hi 👋🏻 {event.sender.first_name},
     
 Request Your Forward Channels**""",
         buttons=[
