@@ -5,6 +5,7 @@ from telethon.sessions import StringSession
 from decouple import config
 from telethon.tl.functions.users import GetFullUserRequest
 
+
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -19,9 +20,9 @@ logger.info("Starting...")
 try:
     api_id = config("APP_ID", cast=int)
     api_hash = config("HASH")
-    string_session = config("STRING_SESSION")
-    user_client = TelegramClient(StringSession(string_session), api_id, api_hash)
-    user_client.start()
+#    string_session = config("STRING_SESSION")
+#    user_client = TelegramClient(StringSession(string_session), api_id, api_hash)
+#    user_client.start()
     bot_token = config("TOKEN")
     source_channel = config("SOURCE_CHANNELS", cast=int)
     admin_user_id = config("ADMIN_USER_ID", cast=int)
@@ -54,6 +55,31 @@ async def help(event):
     else:
         await event.reply("You are not authorized to use the bot.")
 
+@datgbot.on(events.NewMessage(pattern="/id"))
+async def get_ids(event):
+    if event.reply_to_msg_id:
+        await event.get_input_chat()
+        r_msg = await event.get_reply_message()
+        if r_msg.media:
+            bot_api_file_id = pack_bot_file_id(r_msg.media)
+            await tgbot.send_message(
+                event.chat_id,
+                "**Chat ID :- `{}`\nUser ID :- `{}`**".format(
+                    str(event.chat_id), str(r_msg.from_id), bot_api_file_id
+                ),
+            )
+        else:
+            await datgbot.send_message(
+                event.chat_id,
+                "ايـدي الـدردشة: `{}`\nايدي المستخدم: `{}`".format(
+                    str(event.chat_id), str(r_msg.from_id)
+                ),
+            )
+    else:
+        await datgbot.send_message(
+            event.chat_id, "ايـدي الـدردشة: `{}`".format(str(event.chat_id))
+        )
+
 async def replace_links_in_message(message):
     if replacement_link:
         message = re.sub(r'https?://t\.me\S*|t\.me\S*', replacement_link, message)
@@ -68,7 +94,7 @@ async def replace_links_in_caption(caption):
         caption = re.sub(r'@[\w]+', replacement_username, caption)
     return caption
 
-@user_client.on(events.NewMessage(chats=source_channel))
+@datgbot.on(events.NewMessage(chats=source_channel))
 async def forward_message(event):
     user_id = event.sender_id
     if not event.is_private:
