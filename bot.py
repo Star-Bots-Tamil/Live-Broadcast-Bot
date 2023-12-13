@@ -71,13 +71,13 @@ async def get_ids(event):
         else:
             await datgbot.send_message(
                 event.chat_id,
-                "ايـدي الـدردشة: `{}`\nايدي المستخدم: `{}`".format(
+                "**Chat ID :- `{}`\nUser ID :- `{}`**".format(
                     str(event.chat_id), str(r_msg.from_id)
                 ),
             )
     else:
         await datgbot.send_message(
-            event.chat_id, "ايـدي الـدردشة: `{}`".format(str(event.chat_id))
+            event.chat_id, "**Chat ID :- `{}`**".format(str(event.chat_id))
         )
 
 async def replace_links_in_message(message):
