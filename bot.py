@@ -75,7 +75,7 @@ async def about(event):
         link_preview=False,
     )
 
-@datgbot.on(events.NewMessage(pattern="/forward")
+@datgbot.on(events.NewMessage(pattern="/forward"))
 async def forward(event):
     await event.reply("**Hello 👋🏻 {event.sender.first_name}\n\nRequest Your Forward Channels**",
         buttons=[
