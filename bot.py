@@ -54,7 +54,7 @@ Maintained By :- [Star Bots Tamil](https://t.me/Star_Bots_Tamil)**""",
 
 @datgbot.on(events.NewMessage(pattern="/help"))
 async def help(event):
-    await event.reply("**Hi 👋🏻 {event.sender.first_name},\n\nHere is a list of usable Commands :-\n♦️ /start :- Check if 😊 I'm Alive\n♦️ /forward :- to Request to add Source And Distinction Channels ID (Direct Request to Admin)\n♦️ /help :- This is Bot's Features \n♦️ /about :- to Know About Me 😁\n\n\nHelp\n\n❄ About This Bot :-\n➡ This Bot will Send all New Posts From the Source Channel to one or More Channels (without the Forwarded Tag)!\n\n❄ How to use me?\n🏮 Add the Bot to the Channels.\n🏮 Make me an Admin in Destination Channels.\n🏮Now all new Messages Would be Autoposted on the Linked Channels.!!\n\nLiked the Bot? [Get Source Code](https://t.me/TG_Karthik)**",
+    await event.reply("""**Hi 👋🏻 {event.sender.first_name},\n\nHere is a list of usable Commands :-\n♦️ /start :- Check if 😊 I'm Alive\n♦️ /forward :- to Request to add Source And Distinction Channels ID (Direct Request to Admin)\n♦️ /help :- This is Bot's Features \n♦️ /about :- to Know About Me 😁\n♦️ /id :- Get Your 🆔\n\nHelp\n\n❄ About This Bot :-\n➡ This Bot will Send all New Posts From the Source Channel to one or More Channels (without the Forwarded Tag)!\n\n❄ How to use me?\n🏮 Add the Bot to the Channels.\n🏮 Make me an Admin in Destination Channels.\n🏮Now all new Messages Would be Autoposted on the Linked Channels.!!\n\nLiked the Bot? [Get Source Code](https://t.me/TG_Karthik)**""",
         buttons=[
             [Button.url("Update Channel", url="https://t.me/Star_Bots_Tamil")],
             [Button.url("Add me to Your Channel", url="https://t.me/Auto_Forward_Star_Bot?startchannel=StarBots&admin"),
@@ -65,7 +65,7 @@ async def help(event):
 
 @datgbot.on(events.NewMessage(pattern="/about"))
 async def about(event):
-    await event.reply("**🤖 My Name :- [Auto Forward Star Bots](https://t.me/Auto_Forward_Star_Bot)\n\n🧑🏻‍💻 Developer :- Karthik\n\n🧑🏻‍🤝‍🧑🏻 My Best Friend :- {event.sender.first_name}\n📝 Language :- Python3\n\n📚 Framework :- Telethon\n\n📡 Hosted on :- VPS\n\n📢 Updates Channel :- [Star Bots Tamil](https://t.me/Star_Bots_Tamil)**",
+    await event.reply("**🤖 My Name :- [Auto Forward Star Bots](https://t.me/Auto_Forward_Star_Bot)\n\n🧑🏻‍💻 Developer :- Karthik\n\n🧑🏻‍🤝‍🧑🏻 My Best Friend :- {event.sender.first_name}\n\n📝 Language :- Python3\n\n📚 Framework :- Telethon\n\n📡 Hosted on :- VPS\n\n📢 Updates Channel :- [Star Bots Tamil](https://t.me/Star_Bots_Tamil)**",
         buttons=[
             [Button.url("Update Channel", url="https://t.me/Star_Bots_Tamil")],
             [Button.url("Add me to Your Channel", url="https://t.me/Auto_Forward_Star_Bot?startchannel=StarBots&admin"),
