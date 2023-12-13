@@ -4,8 +4,6 @@ from telethon import TelegramClient, events, Button
 from pyrogram import Client, filters
 from telethon.sessions import StringSession
 from decouple import config
-from telethon.tl.functions.users import GetFullUserRequest
-from telethon.utils import pack_bot_file_id
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -21,13 +19,6 @@ replacement_link2 = config("MY_LINK2", default=None)
 replacement_username2 = config("MY_USERNAME2", default=None)
 
 logger.info("Starting...")
-
-Bot = Client(
-    "Info Bot",
-    bot_token=config("TOKEN"),
-    api_id=int(config("APP_ID")),
-    api_hash=config("HASH")
-)
 
 try:
     api_id = config("APP_ID", cast=int)
@@ -64,45 +55,11 @@ Maintained By :- [Star Bots Tamil](https://t.me/Star_Bots_Tamil)**""",
 
 @datgbot.on(events.NewMessage(pattern="/help"))
 async def help(event):
-    user_id = event.sender_id
-    if user_id == admin_user_id:
-        try:
-            await event.reply("**Help**\n\n**❄About this bot:\n➡This bot will send all new posts from the source channel to one or more channels (without the forwarded tag)!**\n\n**❄How to use me?\n🏮Add the account to the channels.\n🏮Make me an admin in destination channels.\n🏮Now all new messages would be autoposted on the linked channels!!**\n\n**Liked the bot?** [Get Code](https://t.me/WolfOfficials)", link_preview=False)
+    await event.reply("**Help\n\n❄ About This Bot :-\n➡ This Bot will Send all New Posts From the Source Channel to one or More Channels (without the Forwarded Tag)!\n\n❄ How to use me?\n🏮 Add the Bot to the Channels.\n🏮 Make me an Admin in Destination Channels.\n🏮Now all new Messages Would be Autoposted on the Linked Channels.!!\n\nLiked the Bot? [Get Source Code](https://t.me/TG_Karthik)**",
         except Exception as e:
             logger.error(f"Error processing /help command: {str(e)}")
     else:
         await event.reply("You are not authorized to use the bot.")
-
-@Bot.on_message(filters.command("id"))
-async def get_id(_, m):
-    reply = m.reply_to_message
-    _reply = ""
-    if not reply:
-        no_reply = f"Yᴏᴜʀ ɪᴅ: {m.from_user.id}\n"
-        no_reply += f"Tʜɪs ᴄʜᴀᴛ ɪᴅ: {m.chat.id}\n"
-        no_reply += f"Mᴇssᴀɢᴇ ɪᴅ: {m.id}"
-        await m.reply_text(text=(no_reply))
-    if reply.from_user:
-        _reply += f"Yᴏᴜʀ ɪᴅ: {m.from_user.id}\n"
-        _reply += f"Rᴇᴘʟɪᴇᴅ Usᴇʀ ɪᴅ: {reply.from_user.id}\n"
-        _reply += f"Tʜɪs Cʜᴀᴛ ɪᴅ: {m.chat.id}\n\n"
-        _reply += f"ʀᴇᴘʟɪᴇᴅ ᴍᴇssᴀɢᴇ ɪᴅ: {reply.id}\n"
-    if reply.sender_chat:
-        _reply += f"Cʜᴀɴɴᴇʟ  ɪᴅ: {reply.sender_chat.id}\n"
-    if reply.sticker:
-        _reply += f"Sᴛɪᴄᴋᴇʀ ɪᴅ: {reply.sticker.file_id}"
-    elif reply.animation:
-        _reply += f"Aɴɪᴍᴀᴛɪᴏɴ ɪᴅ: {reply.animation.file_id}"
-    elif reply.document:
-        _reply += f"Dᴏᴄᴜᴍᴇɴᴛ ɪᴅ: {reply.document.file_id}"
-    elif reply.audio:
-        _reply += f"Aᴜᴅɪᴏ ɪᴅ: {reply.audio.file_id}"
-    elif reply.video:
-        _reply += f"Vɪᴅᴇᴏ ɪᴅ: {reply.video.file_id}"
-    elif reply.photo:
-        _reply += f"Pʜᴏᴛᴏ ɪᴅ: {reply.photo.file_id}"
-    await reply.reply_text(_reply)
-    await m.delete()
 
 # First Forward 
 async def replace_links_in_message(message):
