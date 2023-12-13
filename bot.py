@@ -81,7 +81,7 @@ async def get_id(event):
         else:
             await datgbot.send_message(
                 event.chat_id,
-                "**Chat ID :- `{}`\nUser ID :- `{}`**".format(
+                "**Chat ID :- `{}`\nUser ID :- {} or `{}`**".format(
                     str(event.chat_id), str(r_msg.from_id), pack_bot_file_id
                 ),
             )
