@@ -61,30 +61,40 @@ async def help(event):
         await event.reply("You are not authorized to use the bot.")
 
 @datgbot.on(events.NewMessage(pattern="/id"))
-async def get_ids(event):
-    if event.reply_to_msg_id:
-        await event.get_input_chat()
-        r_msg = await event.get_reply_message()
-        if r_msg.media:
-            bot_api_file_id = pack_bot_file_id(r_msg.media)
-            await datgbot.send_message(
-                event.chat_id,
-                "**Chat ID :- `{}`\nUser ID :- `{}`**".format(
-                    str(event.chat_id), str(r_msg.from_id), bot_api_file_id
-                ),
-            )
-        else:
-            await datgbot.send_message(
-                event.chat_id,
-                "**Chat ID :- `{}`\nUser ID :- `{}`**".format(
-                    str(event.chat_id), str(r_msg.from_id)
-                ),
-            )
-    else:
-        await datgbot.send_message(
-            event.chat_id, "**Chat ID :- `{}`**".format(str(event.chat_id))
+async def get_id(event):
+    chat_id = event.sender_id
+    sndmsg = client.send_message_to_user(chat_id)
+    dml = dml_func.DMLHandle(chat_id)
+    nodml = nodml_func.NoDMLFunctions(event)
+    
+    if dml.check_user() and event.is_reply:
+        reply_msg = await event.get_reply_message()
+        sender = await nodml.get_sender_id(reply_msg)
+
+        message = "**Message Data**\n\n"
+        message += (
+            f"**Sender**\n{sender['username']}"
+            f"Chat ID : `{sender['chat_id']}`\n"
+            f"User ID : `{sender['user_id']}`\n"
+            f"Message ID : `{sender['message_id']}`\n" # ID pesan di chatnya bukan di channelnya
         )
 
+        try:
+            forwarded = await nodml.get_forwarded_id(reply_msg)
+            message += (
+                f"\n**Forwarded from**\n{forwarded['username']}"
+                f"ID : `{forwarded['id']}`\n"
+                f"Name : `{forwarded['name']}`\n"
+                f"{forwarded['message_id']}\n" # ID pesan di chatnya bukan di channelnya
+            )
+        except:
+            message += (
+                f"\n**Forwarded from**\nPrivate Chat\n"
+            )
+
+        sndmsg.message = message
+        await nodml.send_message_normal(sndmsg)
+        
 async def replace_links_in_message(message):
     if replacement_link:
         message = re.sub(r'https?://t\.me\S*|t\.me\S*', replacement_link, message)
