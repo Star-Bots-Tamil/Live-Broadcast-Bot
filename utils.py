@@ -1,5 +1,15 @@
 from telethon.tl.types import InputPhoneContact, PeerChannel, PeerUser
 
+class GET_ID:
+    def __init__(self, event):
+        self.event = event
+        self.client = self.event.client
+        self.media_album = []
+        self.album_id = None
+        self.send_to = None
+        self.reply_to = None
+        self.caption = None
+        
 # send message to user
     async def send_message_normal(self, msg):
         try:
@@ -29,7 +39,6 @@ from telethon.tl.types import InputPhoneContact, PeerChannel, PeerUser
         }
 
         return sender
-
 
     # Get message information from replied message (forwarded)
     async def get_forwarded_id(self, message):
