@@ -11,9 +11,13 @@ logger = logging.getLogger(__name__)
 
 destination_channels_str = config("DESTNATION_CHANNELS")
 destination_channels = [int(channel_id.strip()) for channel_id in destination_channels_str.split(',')]
+destination_channels_str2 = config("DESTNATION_CHANNELS2")
+destination_channels2 = [int(channel_id.strip()) for channel_id in destination_channels_str2.split(',')]
 
 replacement_link = config("MY_LINK", default=None)
 replacement_username = config("MY_USERNAME", default=None)
+replacement_link2 = config("MY_LINK2", default=None)
+replacement_username2 = config("MY_USERNAME2", default=None)
 
 logger.info("Starting...")
 
@@ -24,7 +28,8 @@ try:
 #    user_client = TelegramClient(StringSession(string_session), api_id, api_hash)
 #    user_client.start()
     bot_token = config("TOKEN")
-    source_channel = config("SOURCE_CHANNELS", cast=int)
+    source_channel = config("SOURCE_CHANNEL", cast=int)
+    source_channel2 = config("SOURCE_CHANNEL2", cast=int)
     admin_user_id = config("ADMIN_USER_ID", cast=int)
     datgbot = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 except Exception as e:
@@ -93,7 +98,8 @@ async def get_id(event):
 
         sndmsg.message = message
         await nodml.send_message_normal(sndmsg)
-        
+
+# First Forward 
 async def replace_links_in_message(message):
     if replacement_link:
         message = re.sub(r'https?://t\.me\S*|t\.me\S*', replacement_link, message)
@@ -108,6 +114,22 @@ async def replace_links_in_caption(caption):
         caption = re.sub(r'@[\w]+', replacement_username, caption)
     return caption
 
+# Second Forward 
+async def replace_links_in_message2(message):
+    if replacement_link2:
+        message = re.sub(r'https?://t\.me\S*|t\.me\S*', replacement_link2, message)
+    if replacement_username2:
+        message = re.sub(r'@[\w]+', replacement_username2, message)
+    return message
+
+async def replace_links_in_caption2(caption):
+    if replacement_link2:
+        caption = re.sub(r'https?://t\.me\S*|t\.me\S*', replacement_link28, caption)
+    if replacement_username2:
+        caption = re.sub(r'@[\w]+', replacement_username2, caption)
+    return caption
+
+# First Forward 
 @datgbot.on(events.NewMessage(chats=source_channel))
 async def forward_message(event):
     user_id = event.sender_id
@@ -124,8 +146,26 @@ async def forward_message(event):
                 for destination_channel_id in destination_channels:
                     await event.client.send_message(destination_channel_id, replaced_message)
         except Exception as e:
-            logger.error(f"Failed to forward the message: {str(e)}")
+            logger.error(f"Failed to First Forward the message: {str(e)}")
 
+# Second Forward 
+@datgbot.on(events.NewMessage(chats=source_channel2))
+async def forward_message(event):
+    user_id = event.sender_id
+    if not event.is_private:
+        try:
+            if event.message.media:
+                if getattr(event.message, 'message', None):
+                    replaced_caption2 = await replace_links_in_caption2(event.message.message)
+                    event.message.message = replaced_caption2
+                for destination_channel_id in destination_channels2:
+                    await event.client.send_message(destination_channel_id, event.message)
+            else:
+                replaced_message2 = await replace_links_in_message2(event.message.text)
+                for destination_channel_id in destination_channels2:
+                    await event.client.send_message(destination_channel_id, replaced_message)
+        except Exception as e:
+            logger.error(f"Failed to Second Forward the message: {str(e)}")
 
 logger.info("Bot has started.")
 datgbot.run_until_disconnected()
