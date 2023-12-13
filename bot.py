@@ -4,6 +4,7 @@ from telethon import TelegramClient, events, Button
 from telethon.sessions import StringSession
 from decouple import config
 from telethon.tl.functions.users import GetFullUserRequest
+from telethon.utils import pack_bot_file_id
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -81,7 +82,7 @@ async def get_id(event):
             await datgbot.send_message(
                 event.chat_id,
                 "**Chat ID :- `{}`\nUser ID :- `{}`**".format(
-                    str(event.chat_id), str(r_msg.from_id)
+                    str(event.chat_id), str(r_msg.from_id), pack_bot_file_id
                 ),
             )
     else:
