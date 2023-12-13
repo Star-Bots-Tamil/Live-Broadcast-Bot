@@ -63,7 +63,7 @@ async def help(event):
 @datgbot.on(events.NewMessage(pattern="/id"))
 async def get_id(event):
     chat_id = event.sender_id
-    sndmsg = client.send_message_to_user(chat_id)
+    sndmsg = event.client.send_message_to_user(chat_id)
     nodml = GET_ID(event)
     
     if event.is_reply:
