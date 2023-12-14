@@ -10,7 +10,7 @@ WORKDIR /app
 
 COPY . .
 
-# Expose port 80
-EXPOSE 80
+# Expose port 8080
+EXPOSE 8080
 
 CMD ["python3", "bot.py"]
