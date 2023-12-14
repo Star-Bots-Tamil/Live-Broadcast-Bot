@@ -147,8 +147,8 @@ async def get_id(event):
             user_entity = await datgbot.get_entity(forwarder)
             full_user = await datgbot(GetFullUserRequest(user_entity))
             display_name = full_user.user.first_name  # Assuming you want the first name
-            result += f"**💁🏻 Original Sender ({display_name}), ID :-** `{sender}`\n"
-            result += f"**⏩ Forwarder ({display_name}), ID :-** `{forwarder}`"
+            result += f"**💁🏻 Original Sender ({escape(display_name)}), ID :-** `{sender}`\n"
+            result += f"**⏩ Forwarder ({escape(display_name)}), ID :-** `{forwarder}`"
 
         if reply_message.forward.chat_id:  # Forwarded channel
             channel = await datgbot.get_entity(reply_message.forward.chat_id)
@@ -157,7 +157,7 @@ async def get_id(event):
             full_user = await datgbot(GetFullUserRequest(user_entity))
             display_name = full_user.user.first_name
             result += f"**💬 Channel {channel.title} ID :-** `-100{channel.id}`\n"
-            result += f"**⏩ Forwarder ({display_name}), ID :-** `{forwarder}`"
+            result += f"**⏩ Forwarder ({escape(display_name)}), ID :-** `{forwarder}`"
 
     await event.respond(result, parse_mode='markdown')
 
