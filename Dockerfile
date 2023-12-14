@@ -7,6 +7,6 @@ COPY . .
 # Installing needed packages and dependencies.**
 RUN pip install -r requirements.txt
 # This command basically executes your main file with Python.
-CMD ["python3", "bot.py"]
+CMD ["python", "bot.py"]
 # Setting a port for your app communications with Telegram servers.
 EXPOSE 80/tcp
