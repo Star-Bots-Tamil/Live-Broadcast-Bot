@@ -1,15 +1,12 @@
 from telegram.ext import ApplicationBuilder
-from os import environ
 from telegram import Update
 from telegram.constants import ParseMode
 from telegram.ext import filters, MessageHandler
+from decouple import config
 
 LOGGER = logging.getLogger(__name__)
 
-BOT_TOKEN = environ.get("BOT_TOKEN", "")
-if not BOT_TOKEN:
-    LOGGER.error("No BOT_TOKEN token provided!")
-    exit()
+BOT_TOKEN = config("TOKEN")
 
 async def get_id(update: Update, _):
     message = update.effective_message
