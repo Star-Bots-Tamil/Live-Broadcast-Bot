@@ -3,6 +3,7 @@ import re
 from telethon import TelegramClient, events, Button, sync
 from telethon.tl.types import PeerChannel, PeerChat, PeerUser
 from telethon.utils import get_display_name
+from telethon.tl.functions.users import GetFullUser
 from telethon.sessions import StringSession
 from decouple import config
 
@@ -143,8 +144,11 @@ async def get_id(event):
         if reply_message.forward.sender_id:  # Forwarded user
             sender = reply_message.forward.sender_id
             forwarder = reply_message.sender_id
-            result += f"**💁🏻 Original Sender ({get_display_name(sender)}), ID :-** `{sender}`\n"
-            result += f"**⏩ Forwarder ({get_display_name(forwarder)}), ID :-** `{forwarder}`"
+            user_entity = await client.get_entity(forwarder)
+            full_user = await client(GetFullUser(user_entity))
+            display_name = full_user.user.first_name  # Assuming you want the first name
+            result += f"**💁🏻 Original Sender ({display_name}), ID :-** `{sender}`\n"
+            result += f"**⏩ Forwarder ({display_name}), ID :-** `{forwarder}`"
 
         if reply_message.forward.chat_id:  # Forwarded channel
             channel = await datgbot.get_entity(reply_message.forward.chat_id)
