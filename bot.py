@@ -134,7 +134,7 @@ async def get_id(event):
     if isinstance(chat, PeerUser):  # Private chat with the bot
         await event.respond(f"**💁🏻 Your ID is :-** `{chat.user_id}`", parse_mode='markdown')
 
-    result = f"**👥 Chat ID :-** `{chat.id}`\n"
+    result = f"**👥 User ID :-** `{chat.id}`\n"
     if isinstance(chat, PeerChat) and chat.message_thread_id:
         result += f"**💬 Forum/Topic ID :-** `{chat.message_thread_id}`\n"
 
