@@ -124,10 +124,10 @@ Request Your Forward Channels**""",
 
 @datgbot.on(events.NewMessage(pattern="/id"))
 async def getid(event):
-    await get_id(update)
+    try:
+        await get_id(update)
     except Exception as e:
         logger.error(f"Failed get id :- {str(e)}")
-
 
 # First Forward 
 async def replace_links_in_message(message):
