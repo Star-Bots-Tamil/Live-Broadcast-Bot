@@ -31,7 +31,7 @@ try:
     source_channel = config("SOURCE_CHANNEL", cast=int)
     source_channel2 = config("SOURCE_CHANNEL2", cast=int)
     admin_user_id = config("ADMIN_USER_ID", cast=int)
-    datgbot = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
+    datgbot = TelegramClient('starbot', api_id, api_hash).start(bot_token=bot_token)
 except Exception as e:
     logger.error(f"Error initializing the bot: {str(e)}")
     logger.error("Bot is quitting...")
@@ -130,29 +130,33 @@ async def get_id(event):
     if not chat:
         return
 
-    if isinstance(chat, PeerUser):  # Private chat with the bot
-        await event.respond(f"💁🏻 Your ID is: `{chat.user_id}`", parse_mode='markdown')
+    if isinstance(chat, (PeerUser, PeerChannel, PeerChat)):
+        chat_id = chat.id
 
-    result = f"👥 Chat ID: `{chat.id}`\n"
-    if isinstance(chat, PeerChat) and chat.message_thread_id:
-        result += f"💬 Forum/Topic ID: `{chat.message_thread_id}`\n"
+        if isinstance(chat, PeerUser):  # Private chat with the bot
+            await event.respond(f"💁🏻 Your ID is: `{chat_id}`", parse_mode='markdown')
+        else:
+            result = f"👥 Chat ID: `{chat_id}`\n"
+            
+            if isinstance(chat, PeerChat) and chat.message_thread_id:
+                result += f"💬 Forum/Topic ID: `{chat.message_thread_id}`\n"
 
-    if event.reply_to_msg_id:
-        reply_message = await event.get_reply_message()
+            if event.reply_to_msg_id:
+                reply_message = await event.get_reply_message()
 
-        if reply_message.forward.sender_id:  # Forwarded user
-            sender = await reply_message.forward.sender_id
-            forwarder = reply_message.sender_id
-            result += f"💁🏻 Original Sender ({get_display_name(sender)}), ID: `{sender}`\n"
-            result += f"⏩ Forwarder ({get_display_name(forwarder)}), ID: `{forwarder}`"
+                if reply_message.forward.sender_id:  # Forwarded user
+                    sender_id = reply_message.forward.sender_id
+                    forwarder_id = reply_message.sender_id
+                    result += f"💁🏻 Original Sender (ID: `{sender_id}`)\n"
+                    result += f"⏩ Forwarder (ID: `{forwarder_id}`)"
 
-        if reply_message.forward.chat_id:  # Forwarded channel
-            channel = await client.get_entity(reply_message.forward.chat_id)
-            forwarder = reply_message.sender_id
-            result += f"💬 Channel {channel.title} ID: `{channel.id}`\n"
-            result += f"⏩ Forwarder ({get_display_name(forwarder)}), ID: `{forwarder}`"
+                if reply_message.forward.chat_id:  # Forwarded channel
+                    channel_id = reply_message.forward.chat_id
+                    forwarder_id = reply_message.sender_id
+                    result += f"💬 Channel (ID: `{channel_id}`)\n"
+                    result += f"⏩ Forwarder (ID: `{forwarder_id}`)"
 
-    await event.respond(result, parse_mode='markdown')
+            await event.respond(result, parse_mode='markdown')
 
 # First Forward 
 async def replace_links_in_message(message):
