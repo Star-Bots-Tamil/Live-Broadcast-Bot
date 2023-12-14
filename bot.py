@@ -144,8 +144,8 @@ async def get_id(event):
         if reply_message.forward.sender_id:  # Forwarded user
             sender = reply_message.forward.sender_id
             forwarder = reply_message.sender_id
-            user_entity = await client.get_entity(forwarder)
-            full_user = await client(GetFullUserRequest(user_entity))
+            user_entity = await datgbot.get_entity(forwarder)
+            full_user = await datgbot(GetFullUserRequest(user_entity))
             display_name = full_user.user.first_name  # Assuming you want the first name
             result += f"**💁🏻 Original Sender ({display_name}), ID :-** `{sender}`\n"
             result += f"**⏩ Forwarder ({display_name}), ID :-** `{forwarder}`"
