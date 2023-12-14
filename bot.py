@@ -1,6 +1,8 @@
 import logging
 import re
-from telethon import TelegramClient, events, Button
+from telethon import TelegramClient, events, Button, sync
+from telethon.tl.types import PeerChannel, PeerChat, PeerUser
+from telethon.utils import get_display_name
 from telethon.sessions import StringSession
 from decouple import config
 
@@ -123,11 +125,34 @@ Request Your Forward Channels**""",
     )
 
 @datgbot.on(events.NewMessage(pattern="/id"))
-async def getid(event):
-    try:
-        await get_id(update)
-    except Exception as e:
-        logger.error(f"Failed get id :- {str(e)}")
+async def get_id(event):
+    chat = await event.get_chat()
+    if not chat:
+        return
+
+    if isinstance(chat, PeerUser):  # Private chat with the bot
+        await event.respond(f"💁🏻 Your ID is: `{chat.user_id}`", parse_mode='markdown')
+
+    result = f"👥 Chat ID: `{chat.id}`\n"
+    if isinstance(chat, PeerChat) and chat.message_thread_id:
+        result += f"💬 Forum/Topic ID: `{chat.message_thread_id}`\n"
+
+    if event.reply_to_msg_id:
+        reply_message = await event.get_reply_message()
+
+        if reply_message.forward.sender_id:  # Forwarded user
+            sender = await reply_message.forward.sender_id
+            forwarder = reply_message.sender_id
+            result += f"💁🏻 Original Sender ({get_display_name(sender)}), ID: `{sender}`\n"
+            result += f"⏩ Forwarder ({get_display_name(forwarder)}), ID: `{forwarder}`"
+
+        if reply_message.forward.chat_id:  # Forwarded channel
+            channel = await client.get_entity(reply_message.forward.chat_id)
+            forwarder = reply_message.sender_id
+            result += f"💬 Channel {channel.title} ID: `{channel.id}`\n"
+            result += f"⏩ Forwarder ({get_display_name(forwarder)}), ID: `{forwarder}`"
+
+    await event.respond(result, parse_mode='markdown')
 
 # First Forward 
 async def replace_links_in_message(message):
