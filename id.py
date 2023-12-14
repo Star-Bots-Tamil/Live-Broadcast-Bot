@@ -4,9 +4,16 @@ from telegram.constants import ParseMode
 from telegram.ext import filters, MessageHandler
 from decouple import config
 
-LOGGER = logging.getLogger(__name__)
+logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-BOT_TOKEN = config("TOKEN")
+logger.info("Starting...")
+try:
+    BOT_TOKEN = config("TOKEN")
+except Exception as e:
+    logger.error(f"Error of the bot: {str(e)}")
+    logger.error("Bot Stoping..")
+    exit()
 
 async def get_id(update: Update, _):
     message = update.effective_message
@@ -46,3 +53,4 @@ GET_ID_HANDLER = MessageHandler(
 )
 
 bot.add_handler(GET_ID_HANDLER)
+logger.info("Bot has Started for 🆔 command.")
