@@ -6,6 +6,7 @@ from telethon.utils import get_display_name
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.sessions import StringSession
 from decouple import config
+from aiohttp import web
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -37,6 +38,15 @@ except Exception as e:
     logger.error(f"Error initializing the bot: {str(e)}")
     logger.error("Bot is quitting...")
     exit()
+
+# Define your aiohttp web server handler
+async def handle(request):
+    # Respond with a simple message
+    return web.Response(text='Bot Maintained By :- https://telegram.me/Star_Bots_Tamil')
+
+# Create an aiohttp web application
+app = web.Application()
+app.router.add_get('/', handle)  # Define your route(s) here
 
 @datgbot.on(events.NewMessage(pattern="/start"))
 async def start(event):
@@ -231,3 +241,4 @@ async def forward_message(event):
 
 logger.info("Bot has started.")
 datgbot.run_until_disconnected()
+web.run_app(app, host="0.0.0.0", port=8080)
