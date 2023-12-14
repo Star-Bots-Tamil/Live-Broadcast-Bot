@@ -3,7 +3,7 @@ import re
 from telethon import TelegramClient, events, Button, sync
 from telethon.tl.types import PeerChannel, PeerChat, PeerUser
 from telethon.utils import get_display_name
-from telethon.functions.users import GetFullUser
+from telethon.tl.functions.users import GetFullUserRequest
 from telethon.sessions import StringSession
 from decouple import config
 
@@ -145,7 +145,7 @@ async def get_id(event):
             sender = reply_message.forward.sender_id
             forwarder = reply_message.sender_id
             user_entity = await client.get_entity(forwarder)
-            full_user = await client(GetFullUser(user_entity))
+            full_user = await client(GetFullUserRequest(user_entity))
             display_name = full_user.user.first_name  # Assuming you want the first name
             result += f"**💁🏻 Original Sender ({display_name}), ID :-** `{sender}`\n"
             result += f"**⏩ Forwarder ({display_name}), ID :-** `{forwarder}`"
