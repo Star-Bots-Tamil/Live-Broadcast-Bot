@@ -153,8 +153,11 @@ async def get_id(event):
         if reply_message.forward.chat_id:  # Forwarded channel
             channel = await datgbot.get_entity(reply_message.forward.chat_id)
             forwarder = reply_message.sender_id
+            user_entity = await datgbot.get_entity(forwarder)
+            full_user = await datgbot(GetFullUserRequest(user_entity))
+            display_name = full_user.user.first_name
             result += f"**💬 Channel {channel.title} ID :-** `-100{channel.id}`\n"
-            result += f"**⏩ Forwarder ({get_display_name(forwarder)}), ID :-** `{forwarder}`"
+            result += f"**⏩ Forwarder ({display_name}), ID :-** `{forwarder}`"
 
     await event.respond(result, parse_mode='markdown')
 
