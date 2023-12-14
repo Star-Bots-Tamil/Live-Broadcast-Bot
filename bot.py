@@ -141,7 +141,7 @@ async def get_id(event):
         reply_message = await event.get_reply_message()
 
         if reply_message.forward.sender_id:  # Forwarded user
-            sender = await reply_message.forward.sender_id
+            sender = reply_message.forward.sender_id
             forwarder = reply_message.sender_id
             result += f"**💁🏻 Original Sender ({get_display_name(sender)}), ID :-** `{sender}`\n"
             result += f"**⏩ Forwarder ({get_display_name(forwarder)}), ID :-** `{forwarder}`"
