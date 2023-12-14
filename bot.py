@@ -143,21 +143,21 @@ async def get_id(event):
 
         if reply_message.forward.sender_id:  # Forwarded user
             sender = reply_message.forward.sender_id
-            forwarder = reply_message.forward.sender_id
-            user_entity = await datgbot.get_entity(forwarder)
-            full_user = await datgbot(GetFullUserRequest(user_entity))
-            display_name = full_user.user.first_name if full_user.user else "Unknown User" # Assuming you want the first name
-            result += f"**💁🏻 Original Sender ({escape(display_name)}), ID :-** `{sender}`\n"
-            result += f"**⏩ Forwarder ({escape(display_name)}), ID :-** `{forwarder}`"
+            forwarder = reply_message.sender_id
+            #user_entity = await datgbot.get_entity(forwarder)
+            #full_user = await datgbot(GetFullUserRequest(user_entity))
+            #display_name = full_user.user.first_name if full_user.user else "Unknown User" # Assuming you want the first name
+            result += f"**💁🏻 Original Sender ID :-** `{sender}`\n"
+            result += f"**⏩ Forwarder ID :-** `{forwarder}`"
 
         if reply_message.forward.chat_id:  # Forwarded channel
             channel = await datgbot.get_entity(reply_message.forward.chat_id)
-            forwarder = reply_message.forward.sender_id
-            user_entity = await datgbot.get_entity(forwarder)
-            full_user = await datgbot(GetFullUserRequest(user_entity))
-            display_name = full_user.user.first_name if full_user.user else "Unknown User"
+            forwarder = reply_message.sender_id
+            #user_entity = await datgbot.get_entity(forwarder)
+            #full_user = await datgbot(GetFullUserRequest(user_entity))
+            #display_name = full_user.user.first_name if full_user.user else "Unknown User"
             result += f"**💬 Channel {channel.title} ID :-** `-100{channel.id}`\n"
-            result += f"**⏩ Forwarder ({escape(display_name)}), ID :-** `{forwarder}`"
+            result += f"**⏩ Forwarder ID :-** `{forwarder}`"
 
     await event.respond(result, parse_mode='markdown')
 
