@@ -3,7 +3,7 @@ import re
 from telethon import TelegramClient, events, Button, sync
 from telethon.tl.types import PeerChannel, PeerChat, PeerUser
 from telethon.utils import get_display_name
-from telethon.tl.functions.users import GetFullUser
+from telethon.functions.users import GetFullUser
 from telethon.sessions import StringSession
 from decouple import config
 
