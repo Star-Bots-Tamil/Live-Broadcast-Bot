@@ -245,7 +245,6 @@ async def telegram_webhook_handler(request):
     return web.Response()
 
 # Add the Telegram webhook route
-app = web.Application()
 webhook_path = config("WEBHOOK_PATH")
 app.router.add_post(webhook_path, telegram_webhook_handler)
 app.router.add_get("/", root_route_handler)
@@ -253,7 +252,10 @@ app.router.add_get("/", root_route_handler)
 # Start the web server
 port = config("PORT", cast=int)
 webhook_address = config("WEBHOOK_ADDRESS")
-web.TCPSite(app, webhook_address, port).start()
+runner = web.AppRunner(app)
+await runner.setup()
+site = web.TCPSite(runner, webhook_address, port)
+await site.start()
 
 # Define your ping server
 async def ping_server():
