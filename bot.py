@@ -280,5 +280,5 @@ async def ping_server():
         except Exception:
             traceback.print_exc()
 # Start the Telethon client
-await asyncio.gather(datgbot.run_until_disconnected(), ping_server())
+asyncio.gather(datgbot.run_until_disconnected(), ping_server())
 logger.info("Bot has started.")
