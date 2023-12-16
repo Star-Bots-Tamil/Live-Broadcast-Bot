@@ -34,10 +34,10 @@ logger.info("Starting...")
 try:
     api_id = config("APP_ID", cast=int)
     api_hash = config("HASH")
+    bot_token = config("TOKEN")
 #    string_session = config("STRING_SESSION")
 #    user_client = TelegramClient(StringSession(string_session), api_id, api_hash)
 #    user_client.start()
-    bot_token = config("TOKEN")
 #    webhook = config("WEBHOOK")
 #    PING_INTERVAL = config("PING_INTERVAL", cast=int)
 #    URL = config("URL")
@@ -72,6 +72,22 @@ app.router.add_get("/", root_route_handler)
 port = config("PORT", cast=int)
 url = config("URL")
 await web.TCPSite(app, url, port).start()
+
+# Define your ping server
+async def ping_server():
+    sleep_time = config("PING_INTERVAL", cast=int)
+    while True:
+        await asyncio.sleep(sleep_time)
+        try:
+            async with aiohttp.ClientSession(
+                timeout=aiohttp.ClientTimeout(total=10)
+            ) as session:
+                async with session.get(config("URL")) as resp:
+                    logging.info("Pinged server with response: {}".format(resp.status))
+        except TimeoutError:
+            logging.warning("Couldn't connect to the site URL..!")
+        except Exception:
+            traceback.print_exc()
 
 @datgbot.on(events.NewMessage(pattern="/start"))
 async def start(event):
@@ -264,5 +280,7 @@ async def forward_message(event):
         except Exception as e:
             logger.error(f"Failed to Second Forward the message: {str(e)}")
 
+
+# Start the Telethon client
+await asyncio.gather(datgbot.run_until_disconnected(), ping_server())
 logger.info("Bot has started.")
-datgbot.run_until_disconnected()
