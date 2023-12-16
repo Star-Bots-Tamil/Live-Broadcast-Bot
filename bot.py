@@ -36,7 +36,7 @@ try:
 #    user_client.start()
     bot_token = config("TOKEN")
     webhook = config("WEBHOOK")
-    PING_INTERVAL = config("PING_INTERVAL")
+    PING_INTERVAL = config("PING_INTERVAL", cast=int)
     URL = config("URL")
     source_channel = config("SOURCE_CHANNEL", cast=int)
     source_channel2 = config("SOURCE_CHANNEL2", cast=int)
