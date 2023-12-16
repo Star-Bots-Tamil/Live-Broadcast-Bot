@@ -261,8 +261,8 @@ app.router.add_get("/", root_route_handler)
 
 # Start the web server
 port = config("PORT", cast=int)
-url = config("URL")
-await web.TCPSite(app, url, port).start()
+webhook_address = config("WEBHOOK_ADDRESS")
+await web.TCPSite(app, webhook_address, port).start()
 
 # Define your ping server
 async def ping_server():
