@@ -40,7 +40,7 @@ except Exception as e:
     logger.error("Bot is quitting...")
     exit()
 
-@datgbot.on(events.NewMessage(pattern="/start"))
+@StarBotsTamil.on(events.NewMessage(pattern="/start"))
 async def start(event):
     await event.reply(
         f"""**Hi 👋🏻 {event.sender.first_name},
@@ -57,7 +57,7 @@ Maintained By :- [Star Bots Tamil](https://t.me/Star_Bots_Tamil)**""",
         link_preview=False,
     )
 
-@datgbot.on(events.NewMessage(pattern="/help"))
+@StarBotsTamil.on(events.NewMessage(pattern="/help"))
 async def help(event):
     await event.reply(
         f"""**Hi 👋🏻 {event.sender.first_name},
@@ -89,7 +89,7 @@ Liked the Bot? [Get Source Code](https://t.me/TG_Karthik)**""",
         link_preview=False,
     )
 
-@datgbot.on(events.NewMessage(pattern="/about"))
+@StarBotsTamil.on(events.NewMessage(pattern="/about"))
 async def about(event):
     await event.reply(
         f"""**🤖 My Name :- [Auto Forward Star Bots](https://t.me/Auto_Forward_Star_Bot)
@@ -113,7 +113,7 @@ async def about(event):
         link_preview=False,
     )
 
-@datgbot.on(events.NewMessage(pattern="/forward"))
+@StarBotsTamil.on(events.NewMessage(pattern="/forward"))
 async def forward(event):
     await event.reply(
         f"""**Hi 👋🏻 {event.sender.first_name},
@@ -127,7 +127,7 @@ Request Your Forward Channels**""",
         link_preview=False,
     )
 
-@datgbot.on(events.NewMessage(pattern="/id"))
+@StarBotsTamil.on(events.NewMessage(pattern="/id"))
 async def get_id(event):
     chat = await event.get_chat()
     if not chat:
@@ -194,7 +194,7 @@ async def replace_links_in_caption2(caption):
     return caption
 
 # First Forward 
-@datgbot.on(events.NewMessage(chats=source_channel))
+@StarBotsTamil.on(events.NewMessage(chats=source_channel))
 async def forward_message(event):
     user_id = event.sender_id
     if not event.is_private:
@@ -213,7 +213,7 @@ async def forward_message(event):
             logger.error(f"Failed to First Forward the message: {str(e)}")
 
 # Second Forward 
-@datgbot.on(events.NewMessage(chats=source_channel2))
+@StarBotsTamil.on(events.NewMessage(chats=source_channel2))
 async def forward_message(event):
     user_id = event.sender_id
     if not event.is_private:
