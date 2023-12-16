@@ -244,19 +244,6 @@ async def telegram_webhook_handler(request):
         print(f"Error processing Telegram update: {e}")
     return web.Response()
 
-# Add the Telegram webhook route
-webhook_path = config("WEBHOOK_PATH")
-app.router.add_post(webhook_path, telegram_webhook_handler)
-app.router.add_get("/", root_route_handler)
-
-# Start the web server
-port = config("PORT", cast=int)
-webhook_address = config("WEBHOOK_ADDRESS")
-runner = web.AppRunner(app)
-await runner.setup()
-site = web.TCPSite(runner, webhook_address, port)
-await site.start()
-
 # Define your ping server
 async def ping_server():
     sleep_time = config("PING_INTERVAL", cast=int)
@@ -273,10 +260,24 @@ async def ping_server():
         except Exception:
             traceback.print_exc()
 
-# Start the Telethon client and ping server concurrently
-asyncio.gather(StarBotsTamil.run_until_disconnected(), ping_server())
-logger.info("Bot has started.")
+# Your main function
+async def main():
+    webhook_path = config("WEBHOOK_PATH")
+    app.router.add_post(webhook_path, telegram_webhook_handler)
+    app.router.add_get("/", root_route_handler)
 
-# Ensure the main loop keeps running
-loop = asyncio.get_event_loop()
-loop.run_forever()
+# Start the web server
+    port = config("PORT", cast=int)
+    webhook_address = config("WEBHOOK_ADDRESS")
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, webhook_address, port)
+    await site.start()
+    # Start the Telethon client and ping server concurrently
+    await asyncio.gather(StarBotsTamil.run_until_disconnected(), ping_server())
+    logger.info("Bot has Started.")
+
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
+    loop.run_forever()
