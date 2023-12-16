@@ -7,9 +7,12 @@ from telethon.tl.functions.users import GetFullUserRequest
 from telethon.sessions import StringSession
 from decouple import config
 from aiohttp import web
+from plugins import web_server, ping_server
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
+logging.getLogger("aiohttp").setLevel(logging.ERROR)
+logging.getLogger("aiohttp.web").setLevel(logging.ERROR)
 
 destination_channels_str = config("DESTNATION_CHANNELS")
 destination_channels = [int(channel_id.strip()) for channel_id in destination_channels_str.split(',')]
@@ -30,6 +33,7 @@ try:
 #    user_client = TelegramClient(StringSession(string_session), api_id, api_hash)
 #    user_client.start()
     bot_token = config("TOKEN")
+    webhook = config("WEBHOOK")
     source_channel = config("SOURCE_CHANNEL", cast=int)
     source_channel2 = config("SOURCE_CHANNEL2", cast=int)
     admin_user_id = config("ADMIN_USER_ID", cast=int)
@@ -241,4 +245,3 @@ async def forward_message(event):
 
 logger.info("Bot has started.")
 datgbot.run_until_disconnected()
-web.run_app(app, host="0.0.0.0", port=8080)
