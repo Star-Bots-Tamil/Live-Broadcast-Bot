@@ -20,6 +20,8 @@ destination_channels = [int(channel_id.strip()) for channel_id in destination_ch
 destination_channels_str2 = config("DESTNATION_CHANNELS2")
 destination_channels2 = [int(channel_id.strip()) for channel_id in destination_channels_str2.split(',')]
 
+app = web.Application()
+
 replacement_link = config("MY_LINK", default=None)
 replacement_username = config("MY_USERNAME", default=None)
 replacement_link2 = config("MY_LINK2", default=None)
