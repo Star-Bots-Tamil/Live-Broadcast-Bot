@@ -4,13 +4,9 @@ import asyncio
 import aiohttp
 import traceback
 from telethon import TelegramClient, events, Button, sync
-from aiogram import Bot, Dispatcher, types
-from aiogram.types import ParseMode
-from aiogram.utils import executor
 from telethon.tl.types import PeerChannel, PeerChat, PeerUser
 from telethon.utils import get_display_name
 from telethon.tl.functions.users import GetFullUserRequest
-from telethon.sessions import StringSession
 from decouple import config
 from aiohttp import web
 
@@ -35,16 +31,10 @@ try:
     api_id = config("APP_ID", cast=int)
     api_hash = config("HASH")
     bot_token = config("TOKEN")
-#    string_session = config("STRING_SESSION")
-#    user_client = TelegramClient(StringSession(string_session), api_id, api_hash)
-#    user_client.start()
-#    webhook = config("WEBHOOK")
-#    PING_INTERVAL = config("PING_INTERVAL", cast=int)
-#    URL = config("URL")
     source_channel = config("SOURCE_CHANNEL", cast=int)
     source_channel2 = config("SOURCE_CHANNEL2", cast=int)
     admin_user_id = config("ADMIN_USER_ID", cast=int)
-    datgbot = TelegramClient('starbot', api_id, api_hash).start(bot_token=bot_token)
+    StarBotsTamil = TelegramClient('starbot', api_id, api_hash).start(bot_token=bot_token)
 except Exception as e:
     logger.error(f"Error initializing the bot: {str(e)}")
     logger.error("Bot is quitting...")
@@ -249,7 +239,7 @@ async def root_route_handler(request):
 async def telegram_webhook_handler(request):
     try:
         data = await request.json()
-        await datgbot.process_updates(data)
+        await StarBotsTamil.process_updates(data)
     except Exception as e:
         print(f"Error processing Telegram update: {e}")
     return web.Response()
@@ -280,6 +270,11 @@ async def ping_server():
             logging.warning("Couldn't connect to the site URL..!")
         except Exception:
             traceback.print_exc()
-# Start the Telethon client
-asyncio.gather(datgbot.run_until_disconnected(), ping_server())
+
+# Start the Telethon client and ping server concurrently
+asyncio.gather(StarBotsTamil.run_until_disconnected(), ping_server())
 logger.info("Bot has started.")
+
+# Ensure the main loop keeps running
+loop = asyncio.get_event_loop()
+loop.run_forever()
