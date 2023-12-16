@@ -235,7 +235,7 @@ async def forward_message(event):
 
 # Define your aiohttp web server handler
 async def root_route_handler(request):
-    return web.json_response("Bot Maintenance By :- https://telegram.me/Star_Bots_Tamil")
+    return web.json_response(text="Bot Maintenance By :- https://telegram.me/Star_Bots_Tamil")
 
 # Define your custom route for receiving updates from Telegram
 async def telegram_webhook_handler(request):
