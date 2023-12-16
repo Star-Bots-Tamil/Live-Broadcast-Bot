@@ -146,17 +146,17 @@ async def get_id(event):
         if reply_message.forward.sender_id:  # Forwarded user
             sender = reply_message.forward.sender_id
             forwarder = reply_message.sender_id
-            #user_entity = await datgbot.get_entity(forwarder)
-            #full_user = await datgbot(GetFullUserRequest(user_entity))
+            #user_entity = await StarBotsTamil.get_entity(forwarder)
+            #full_user = await StarBotsTamil(GetFullUserRequest(user_entity))
             #display_name = full_user.user.first_name if full_user.user else "Unknown User" # Assuming you want the first name
             result += f"**💁🏻 Original Sender ID :-** `{sender}`\n"
             result += f"**⏩ Forwarder ID :-** `{forwarder}`"
 
         if reply_message.forward.chat_id:  # Forwarded channel
-            channel = await datgbot.get_entity(reply_message.forward.chat_id)
+            channel = await StarBotsTamil.get_entity(reply_message.forward.chat_id)
             forwarder = reply_message.sender_id
-            #user_entity = await datgbot.get_entity(forwarder)
-            #full_user = await datgbot(GetFullUserRequest(user_entity))
+            #user_entity = await StarBotsTamil.get_entity(forwarder)
+            #full_user = await StarBotsTamil(GetFullUserRequest(user_entity))
             #display_name = full_user.user.first_name if full_user.user else "Unknown User"
             result += f"**💬 Channel {channel.title} ID :-** `-100{channel.id}`\n"
             result += f"**⏩ Forwarder ID :-** `{forwarder}`"
