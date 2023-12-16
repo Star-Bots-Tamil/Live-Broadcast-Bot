@@ -4,6 +4,9 @@ import asyncio
 import aiohttp
 import traceback
 from telethon import TelegramClient, events, Button, sync
+from aiogram import Bot, Dispatcher, types
+from aiogram.types import ParseMode
+from aiogram.utils import executor
 from telethon.tl.types import PeerChannel, PeerChat, PeerUser
 from telethon.utils import get_display_name
 from telethon.tl.functions.users import GetFullUserRequest
@@ -35,9 +38,9 @@ try:
 #    user_client = TelegramClient(StringSession(string_session), api_id, api_hash)
 #    user_client.start()
     bot_token = config("TOKEN")
-    webhook = config("WEBHOOK")
-    PING_INTERVAL = config("PING_INTERVAL", cast=int)
-    URL = config("URL")
+#    webhook = config("WEBHOOK")
+#    PING_INTERVAL = config("PING_INTERVAL", cast=int)
+#    URL = config("URL")
     source_channel = config("SOURCE_CHANNEL", cast=int)
     source_channel2 = config("SOURCE_CHANNEL2", cast=int)
     admin_user_id = config("ADMIN_USER_ID", cast=int)
@@ -47,31 +50,28 @@ except Exception as e:
     logger.error("Bot is quitting...")
     exit()
 
-routes = web.RouteTableDef()
-
-@routes.get("/", allow_head=True)
+# Define your aiohttp web server handler
 async def root_route_handler(request):
     return web.json_response("Bot Maintenance By :- https://telegram.me/Star_Bots_Tamil")
 
-async def web_server():
-    web_app = web.Application(client_max_size=30000000)
-    web_app.add_routes(routes)
-    return web_app
+# Define your custom route for receiving updates from Telegram
+async def telegram_webhook_handler(request):
+    try:
+        data = await request.json()
+        await datgbot.process_updates(data)
+    except Exception as e:
+        print(f"Error processing Telegram update: {e}")
+    return web.Response()
 
-async def ping_server():
-    sleep_time = PING_INTERVAL
-    while True:
-        await asyncio.sleep(sleep_time)
-        try:
-            async with aiohttp.ClientSession(
-                timeout=aiohttp.ClientTimeout(total=10)
-            ) as session:
-                async with session.get(URL) as resp:
-                    logging.info("Pinged server with response: {}".format(resp.status))
-        except TimeoutError:
-            logging.warning("Couldn't connect to the site URL..!")
-        except Exception:
-            traceback.print_exc()
+# Add the Telegram webhook route
+webhook_path = config("WEBHOOK_PATH")
+app.router.add_post(webhook_path, telegram_webhook_handler)
+app.router.add_get("/", root_route_handler)
+
+# Start the web server
+port = config("PORT", cast=int)
+url = config("URL")
+await web.TCPSite(app, url, port).start()
 
 @datgbot.on(events.NewMessage(pattern="/start"))
 async def start(event):
