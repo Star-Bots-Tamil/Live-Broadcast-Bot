@@ -255,6 +255,7 @@ async def telegram_webhook_handler(request):
     return web.Response()
 
 # Add the Telegram webhook route
+app = web.Application()
 webhook_path = config("WEBHOOK_PATH")
 app.router.add_post(webhook_path, telegram_webhook_handler)
 app.router.add_get("/", root_route_handler)
