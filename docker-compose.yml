@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  Live-Broadcast-Bot:
+    container_name: Live-Broadcast-Bot
+    image: Live-Broadcast-Bot
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env

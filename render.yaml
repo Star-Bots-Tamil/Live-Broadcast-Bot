@@ -1,0 +1,12 @@
+services:
+  - type: web
+    plan: free
+    name: Live-Broadcast-Bot
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python3 bot.py
+    repo: https://github.com/Star-Bots-Tamil/Live-Broadcast-Bot.git      
+    branch: main
+    env_file:
+      - .env
+    autoDeploy: true 
