@@ -19,6 +19,8 @@ destination_channels_str = config("DESTNATION_CHANNELS")
 destination_channels = [int(channel_id.strip()) for channel_id in destination_channels_str.split(',')]
 destination_channels_str2 = config("DESTNATION_CHANNELS2")
 destination_channels2 = [int(channel_id.strip()) for channel_id in destination_channels_str2.split(',')]
+destination_channels_str3 = config("DESTNATION_CHANNELS3")
+destination_channels3 = [int(channel_id.strip()) for channel_id in destination_channels_str3.split(',')]
 
 app = web.Application()
 
@@ -28,6 +30,9 @@ replacement_web_link = config("WEB_LINK", default=None)
 replacement_link2 = config("MY_LINK2", default=None)
 replacement_username2 = config("MY_USERNAME2", default=None)
 replacement_web_link2 = config("WEB_LINK2", default=None)
+replacement_link3 = config("MY_LINK3", default=None)
+replacement_username3 = config("MY_USERNAME3", default=None)
+replacement_web_link3 = config("WEB_LINK3", default=None)
 
 logger.info("Starting...")
 
@@ -35,8 +40,12 @@ try:
     api_id = config("APP_ID", cast=int)
     api_hash = config("HASH")
     bot_token = config("TOKEN")
+    string_session = config("STRING_SESSION")
+    user_client = TelegramClient(StringSession(string_session), api_id, api_hash)
+    user_client.start()
     source_channel = config("SOURCE_CHANNEL", cast=int)
     source_channel2 = config("SOURCE_CHANNEL2", cast=int)
+    source_channel3 = config("SOURCE_CHANNEL3", cast=int)
     admin_user_id = config("ADMIN_USER_ID", cast=int)
     StarBotsTamil = TelegramClient('starbot', api_id, api_hash).start(bot_token=bot_token)
 except Exception as e:
@@ -242,6 +251,25 @@ async def forward_message(event):
                     await event.client.send_message(destination_channel_id, replaced_message)
         except Exception as e:
             logger.error(f"Failed to Second Forward the message: {str(e)}")
+
+# User Forwarding 
+@user_client.on(events.NewMessage(chats=source_channel3))
+async def forward_message(event):
+    user_id = event.sender_id
+    if not event.is_private:
+        try:
+            if event.message.media:
+                if getattr(event.message, 'text', None):
+                    replaced_message3 = await replace_links_in_message3(event.message.text)
+                    event.message.text = replaced_message3
+                for destination_channel_id in destination_channels3:
+                    await event.client.send_message(destination_channel_id, event.message)
+            else:
+                replaced_message3 = await replace_links_in_message3(event.message.text)
+                for destination_channel_id in destination_channels3:
+                    await event.client.send_message(destination_channel_id, replaced_message)
+        except Exception as e:
+            logger.error(f"Failed to forward the message: {str(e)}")
 
 # Define your aiohttp web server handler
 async def root_route_handler(request):
