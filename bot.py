@@ -201,7 +201,7 @@ async def replace_links_in_message2(message):
         message = re.sub(r'https?://t\.me\S*|t\.me\S*', replacement_link2, message)
     if replacement_username2:
         message = re.sub(r'@[\w]+', replacement_username2, message)
-    message = message.replace('/ql', '/qbleech1')
+    message = message.replace('/ql', '/qbleech2')
     return message
 
 async def replace_links_in_caption2(caption):
@@ -211,7 +211,7 @@ async def replace_links_in_caption2(caption):
         caption = re.sub(r'https?://t\.me\S*|t\.me\S*', replacement_link2, caption)
     if replacement_username2:
         caption = re.sub(r'@[\w]+', replacement_username2, caption)
-    caption = caption.replace('/ql', '/qbleech1')
+    caption = caption.replace('/ql', '/qbleech2')
     return caption
 
 # First Forward 
@@ -225,7 +225,7 @@ async def forward_message(event):
             message = event.message
             message_id = message.id  # Use message ID as a key to track the message
             if message_id in forwarded_messages:
-                time_sent = forwarded_messages[message_id]
+                time_sent, _ = forwarded_messages[message_id]
                 time_elapsed = (datetime.now() - time_sent).total_seconds()
                 if time_elapsed < 300:  # 5 minutes
                     return  # Don't forward if it's less than 5 minutes
@@ -239,15 +239,20 @@ async def forward_message(event):
                 replaced_message = await replace_links_in_message(message.text)
                 for destination_channel_id in destination_channels:
                     await event.client.send_message(destination_channel_id, replaced_message, link_preview=False)
-
-            forwarded_messages[message_id] = datetime.now()
+            if message.media:
+                forwarded_messages[message_id] = (datetime.now(), replaced_caption)
+            else:
+                forwarded_messages[message_id] = (datetime.now(), replaced_message)
             await asyncio.sleep(300)
-            for destination_channel_id in destination_channels:
-                await event.client.send_message(destination_channel_id, message, link_preview=False)
-
+            if message.media:
+                for destination_channel_id in destination_channels:
+                    await event.client.send_message(destination_channel_id, replaced_caption, link_preview=False)
+            else:
+                for destination_channel_id in destination_channels:
+                    await event.client.send_message(destination_channel_id, replaced_message, link_preview=False)
         except Exception as e:
             logger.error(f"Failed to forward the message: {str(e)}")
-            
+
 # second forward
 forwarded_messages2 = {}
 
@@ -259,7 +264,7 @@ async def forward_message(event):
             message = event.message
             message_id = message.id  # Use message ID as a key to track the message
             if message_id in forwarded_messages2:
-                time_sent = forwarded_messages2[message_id]
+                time_sent, _ = forwarded_messages2[message_id]
                 time_elapsed = (datetime.now() - time_sent).total_seconds()
                 if time_elapsed < 300:  # 5 minutes
                     return  # Don't forward if it's less than 5 minutes
@@ -273,15 +278,20 @@ async def forward_message(event):
                 replaced_message2 = await replace_links_in_message2(message.text)
                 for destination_channel_id in destination_channels2:
                     await event.client.send_message(destination_channel_id, replaced_message2, link_preview=False)
-
-            forwarded_messages2[message_id] = datetime.now()
+            if message.media:
+                forwarded_messages2[message_id] = (datetime.now(), replaced_caption2)
+            else:
+                forwarded_messages2[message_id] = (datetime.now(), replaced_message2)
             await asyncio.sleep(300)
-            for destination_channel_id in destination_channels2:
-                await event.client.send_message(destination_channel_id, message, link_preview=False)
-
+            if message.media:
+                for destination_channel_id in destination_channels2:
+                    await event.client.send_message(destination_channel_id, replaced_caption2, link_preview=False)
+            else:
+                for destination_channel_id in destination_channels2:
+                    await event.client.send_message(destination_channel_id, replaced_message2, link_preview=False)
         except Exception as e:
             logger.error(f"Failed to forward the message: {str(e)}")
-            
+                        
 # Define your aiohttp web server handler
 async def root_route_handler(request):
     return web.json_response(text="Bot Maintenance By :- https://telegram.me/Star_Bots_Tamil")
