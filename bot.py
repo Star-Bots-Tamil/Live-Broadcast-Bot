@@ -4,6 +4,7 @@ import asyncio
 import aiohttp
 import traceback
 from telethon import TelegramClient, events, Button, sync
+from telethon.sessions import StringSession
 from telethon.tl.types import PeerChannel, PeerChat, PeerUser
 from telethon.utils import get_display_name
 from telethon.tl.functions.users import GetFullUserRequest
@@ -223,11 +224,11 @@ async def forward_message(event):
                     replaced_caption = await replace_links_in_caption(event.message.message)
                     event.message.message = replaced_caption
                 for destination_channel_id in destination_channels:
-                    await event.client.send_message(destination_channel_id, event.message)
+                    await event.client.send_message(destination_channel_id, event.message, link_preview=False)
             else:
                 replaced_message = await replace_links_in_message(event.message.text)
                 for destination_channel_id in destination_channels:
-                    await event.client.send_message(destination_channel_id, replaced_message)
+                    await event.client.send_message(destination_channel_id, replaced_message, link_preview=False)
         except Exception as e:
             logger.error(f"Failed to First Forward the message: {str(e)}")
 
@@ -242,11 +243,11 @@ async def forward_message(event):
                     replaced_caption2 = await replace_links_in_caption2(event.message.message)
                     event.message.message = replaced_caption2
                 for destination_channel_id in destination_channels2:
-                    await event.client.send_message(destination_channel_id, event.message)
+                    await event.client.send_message(destination_channel_id, event.message, link_preview=False)
             else:
                 replaced_message2 = await replace_links_in_message2(event.message.text)
                 for destination_channel_id in destination_channels2:
-                    await event.client.send_message(destination_channel_id, replaced_message)
+                    await event.client.send_message(destination_channel_id, replaced_message, link_preview=False)
         except Exception as e:
             logger.error(f"Failed to Second Forward the message: {str(e)}")
 
