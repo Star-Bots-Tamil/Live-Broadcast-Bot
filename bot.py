@@ -235,13 +235,11 @@ async def forward_message(event):
                     message.message = replaced_caption
                 for destination_channel_id in destination_channels:
                     await event.client.send_message(destination_channel_id, message, link_preview=False)
+                forwarded_messages[message_id] = (datetime.now(), replaced_caption)
             else:
                 replaced_message = await replace_links_in_message(message.text)
                 for destination_channel_id in destination_channels:
                     await event.client.send_message(destination_channel_id, replaced_message, link_preview=False)
-            if message.media:
-                forwarded_messages[message_id] = (datetime.now(), replaced_caption)
-            else:
                 forwarded_messages[message_id] = (datetime.now(), replaced_message)
             await asyncio.sleep(300)
             if message.media:
@@ -273,14 +271,12 @@ async def forward_message(event):
                     replaced_caption2 = await replace_links_in_caption2(message.message)
                     message.message = replaced_caption2
                 for destination_channel_id in destination_channels2:
-                    await event.client.send_message(destination_channel_id, message, link_preview=False)
+                       await event.client.send_message(destination_channel_id, message, link_preview=False)
+                forwarded_messages2[message_id] = (datetime.now(), replaced_caption2)
             else:
                 replaced_message2 = await replace_links_in_message2(message.text)
                 for destination_channel_id in destination_channels2:
                     await event.client.send_message(destination_channel_id, replaced_message2, link_preview=False)
-            if message.media:
-                forwarded_messages2[message_id] = (datetime.now(), replaced_caption2)
-            else:
                 forwarded_messages2[message_id] = (datetime.now(), replaced_message2)
             await asyncio.sleep(300)
             if message.media:
@@ -291,7 +287,7 @@ async def forward_message(event):
                     await event.client.send_message(destination_channel_id, replaced_message2, link_preview=False)
         except Exception as e:
             logger.error(f"Failed to forward the message: {str(e)}")
-                        
+
 # Define your aiohttp web server handler
 async def root_route_handler(request):
     return web.json_response(text="Bot Maintenance By :- https://telegram.me/Star_Bots_Tamil")
