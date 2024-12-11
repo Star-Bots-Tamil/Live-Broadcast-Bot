@@ -35,6 +35,9 @@ try:
     api_id = config("APP_ID", cast=int)
     api_hash = config("HASH")
     bot_token = config("TOKEN")
+    string_session = config("STRING_SESSION")
+    user_client = TelegramClient(StringSession(string_session), api_id, api_hash)
+    user_client.start()
     source_channel = config("SOURCE_CHANNEL", cast=int)
     source_channel2 = config("SOURCE_CHANNEL2", cast=int)
     admin_user_id = config("ADMIN_USER_ID", cast=int)
@@ -175,6 +178,7 @@ async def replace_links_in_message(message):
         message = re.sub(r'https?://t\.me\S*|t\.me\S*', replacement_link, message)
     if replacement_username:
         message = re.sub(r'@[\w]+', replacement_username, message)
+    message = message.replace('/ql', '/qbleech')
     return message
 
 async def replace_links_in_caption(caption):
@@ -184,6 +188,7 @@ async def replace_links_in_caption(caption):
         caption = re.sub(r'https?://t\.me\S*|t\.me\S*', replacement_link, caption)
     if replacement_username:
         caption = re.sub(r'@[\w]+', replacement_username, caption)
+    caption = caption.replace('/ql', '/qbleech')
     return caption
 
 # Second Forward 
@@ -194,6 +199,7 @@ async def replace_links_in_message2(message):
         message = re.sub(r'https?://t\.me\S*|t\.me\S*', replacement_link2, message)
     if replacement_username2:
         message = re.sub(r'@[\w]+', replacement_username2, message)
+    message = message.replace('/ql', '/qbleech1')
     return message
 
 async def replace_links_in_caption2(caption):
@@ -203,10 +209,11 @@ async def replace_links_in_caption2(caption):
         caption = re.sub(r'https?://t\.me\S*|t\.me\S*', replacement_link2, caption)
     if replacement_username2:
         caption = re.sub(r'@[\w]+', replacement_username2, caption)
+    caption = caption.replace('/ql', '/qbleech1')
     return caption
 
 # First Forward 
-@StarBotsTamil.on(events.NewMessage(chats=source_channel))
+@user_client.on(events.NewMessage(chats=source_channel))
 async def forward_message(event):
     user_id = event.sender_id
     if not event.is_private:
@@ -225,7 +232,7 @@ async def forward_message(event):
             logger.error(f"Failed to First Forward the message: {str(e)}")
 
 # Second Forward 
-@StarBotsTamil.on(events.NewMessage(chats=source_channel2))
+@user_client.on(events.NewMessage(chats=source_channel2))
 async def forward_message(event):
     user_id = event.sender_id
     if not event.is_private:
