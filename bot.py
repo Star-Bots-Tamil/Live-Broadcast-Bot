@@ -21,8 +21,9 @@ destination_channels_str = config("DESTNATION_CHANNELS")
 destination_channels = [int(channel_id.strip()) for channel_id in destination_channels_str.split(',')]
 destination_channels_str2 = config("DESTNATION_CHANNELS2")
 destination_channels2 = [int(channel_id.strip()) for channel_id in destination_channels_str2.split(',')]
-destination_channels_str3 = config("DESTNATION_CHANNELS3")
-destination_channels3 = [int(channel_id.strip()) for channel_id in destination_channels_str3.split(',')]
+
+source_channel_str3 = config("SOURCE_CHANNEL3")
+source_channel3 = [int(channel_id.strip()) for channel_id in source_channel_str3.split(' ')]
 
 app = web.Application()
 
@@ -47,7 +48,7 @@ try:
     user_client.start()
     source_channel = config("SOURCE_CHANNEL", cast=int)
     source_channel2 = config("SOURCE_CHANNEL2", cast=int)
-    source_channel3 = config("SOURCE_CHANNEL3", cast=int)
+    destination_channels3 = config("DESTNATION_CHANNELS3", cast=int)
     admin_user_id = config("ADMIN_USER_ID", cast=int)
     StarBotsTamil = TelegramClient('starbot', api_id, api_hash).start(bot_token=bot_token)
 except Exception as e:
