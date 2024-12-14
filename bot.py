@@ -21,6 +21,8 @@ destination_channels_str = config("DESTNATION_CHANNELS")
 destination_channels = [int(channel_id.strip()) for channel_id in destination_channels_str.split(',')]
 destination_channels_str2 = config("DESTNATION_CHANNELS2")
 destination_channels2 = [int(channel_id.strip()) for channel_id in destination_channels_str2.split(',')]
+destination_channels_str3 = config("DESTNATION_CHANNELS3")
+destination_channels3 = [int(channel_id.strip()) for channel_id in destination_channels_str3.split(',')]
 
 app = web.Application()
 
@@ -30,6 +32,9 @@ replacement_web_link = config("WEB_LINK", default=None)
 replacement_link2 = config("MY_LINK2", default=None)
 replacement_username2 = config("MY_USERNAME2", default=None)
 replacement_web_link2 = config("WEB_LINK2", default=None)
+replacement_link3 = config("MY_LINK3", default=None)
+replacement_username3 = config("MY_USERNAME3", default=None)
+replacement_web_link3 = config("WEB_LINK3", default=None)
 
 logger.info("Starting...")
 
@@ -42,6 +47,7 @@ try:
     user_client.start()
     source_channel = config("SOURCE_CHANNEL", cast=int)
     source_channel2 = config("SOURCE_CHANNEL2", cast=int)
+    source_channel3 = config("SOURCE_CHANNEL3", cast=int)
     admin_user_id = config("ADMIN_USER_ID", cast=int)
     StarBotsTamil = TelegramClient('starbot', api_id, api_hash).start(bot_token=bot_token)
 except Exception as e:
@@ -214,6 +220,27 @@ async def replace_links_in_caption2(caption):
     caption = caption.replace('/ql', '/qbleech2')
     return caption
 
+# Third Forward
+async def replace_links_in_message3(message):
+    if replacement_web_link3:
+        message = re.sub(r'https?://tcvvip5\.com/#/register\?r_code=44YWW823408', replacement_web_link3, message)
+    if replacement_link3:
+        message = re.sub(r'https?://t\.me\S*|t\.me\S*', replacement_link3, message)
+    if replacement_username3:
+        message = re.sub(r'@[\w]+', replacement_username3, message)
+    message = message.replace('/qbleech2', '/qbleech')
+    return message
+
+async def replace_links_in_caption3(caption):
+    if replacement_web_link3:
+        caption = re.sub(r'https?://tcvvip5\.com/#/register\?r_code=44YWW823408', replacement_web_link3, caption)
+    if replacement_link3:
+        caption = re.sub(r'https?://t\.me\S*|t\.me\S*', replacement_link3, caption)
+    if replacement_username3:
+        caption = re.sub(r'@[\w]+', replacement_username3, caption)
+    caption = caption.replace('/qbleech2', '/qbleech')
+    return caption
+
 # First Forward 
 forwarded_messages = {}
 
@@ -281,8 +308,42 @@ async def forward_message(event):
 
         except Exception as e:
             logger.error(f"Failed to forward the message: {str(e)}")
+
+# Third Forward 
+forwarded_messages3 = {}
+
+@user_client.on(events.NewMessage(chats=source_channel3))
+async def forward_message(event):
+    user_id = event.sender_id
+    if not event.is_private:
+        try:
+            message = event.message
+            message_id = message.id  # Use message ID as a key to track the message
+            if message_id in forwarded_messages3:
+                time_sent = forwarded_messages3[message_id]
+                time_elapsed = (datetime.now() - time_sent).total_seconds()
+                if time_elapsed < 300:  # 5 minutes
+                    return  # Don't forward if it's less than 5 minutes
+            if message.media:
+                if getattr(message, 'message', None):
+                    replaced_caption3 = await replace_links_in_caption3(message.message)
+                    message.message = replaced_caption3
+                for destination_channel_id in destination_channels3:
+                    await event.client.send_message(destination_channel_id, message, link_preview=False)
+            else:
+                replaced_message3 = await replace_links_in_message3(message.text)
+                for destination_channel_id in destination_channels3:
+                    await event.client.send_message(destination_channel_id, replaced_message3, link_preview=False)
+
+            forwarded_messages3[message_id] = datetime.now()
+            await asyncio.sleep(300)
+            for destination_channel_id in destination_channels3:
+                await event.client.send_message(destination_channel_id, message, link_preview=False)
+
+        except Exception as e:
+            logger.error(f"Failed to forward the message: {str(e)}")
             
-# Define your aiohttp web server handler
+#Define your aiohttp web server handler
 async def root_route_handler(request):
     return web.json_response(text="Bot Maintenance By :- https://telegram.me/Star_Bots_Tamil")
 
