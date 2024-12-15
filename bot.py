@@ -311,35 +311,24 @@ async def forward_message(event):
             logger.error(f"Failed to forward the message: {str(e)}")
 
 # Third Forward 
-forwarded_messages3 = {}
-
-@user_client.on(events.NewMessage(chats=source_channel3))
+@user_client.on(events.NewMessage(chats=source_channel3))  # Changed source_channel2 to source_channel3
 async def forward_message(event):
     user_id = event.sender_id
     if not event.is_private:
         try:
-            message = event.message
-            message_id = message.id  # Use message ID as a key to track the message
-            if message_id in forwarded_messages3:
-                time_sent = forwarded_messages3[message_id]
-                time_elapsed = (datetime.now() - time_sent).total_seconds()
-                if time_elapsed < 300:  # 5 minutes
-                    return  # Don't forward if it's less than 5 minutes
-            if message.media:
-                if getattr(message, 'message', None):
-                    replaced_caption3 = await replace_links_in_caption3(message.message)
-                    message.message = replaced_caption3
-                for destination_channel_id in destination_channels3:
-                    await event.client.send_message(destination_channel_id, message, link_preview=False)
-            else:
-                replaced_message3 = await replace_links_in_message3(message.text)
-                for destination_channel_id in destination_channels3:
-                    await event.client.send_message(destination_channel_id, replaced_message3, link_preview=False)
+            # Wait for 1 hour (3600 seconds)
+            await asyncio.sleep(3600)
 
-            forwarded_messages3[message_id] = datetime.now()
-            await asyncio.sleep(300)
-            for destination_channel_id in destination_channels3:
-                await event.client.send_message(destination_channel_id, message, link_preview=False)
+            if event.message.media:
+                if getattr(event.message, 'message', None):
+                    replaced_caption3 = await replace_links_in_caption3(event.message.message)  # Changed to replace_links_in_caption3
+                    event.message.message = replaced_caption3
+                for destination_channel_id in destination_channels3:  # Changed to destination_channels3
+                    await event.client.send_message(destination_channel_id, event.message)
+            else:
+                replaced_message3 = await replace_links_in_message3(event.message.text)  # Changed to replace_links_in_message3
+                for destination_channel_id in destination_channels3:  # Changed to destination_channels3
+                    await event.client.send_message(destination_channel_id, replaced_message3)
 
         except Exception as e:
             logger.error(f"Failed to forward the message: {str(e)}")
