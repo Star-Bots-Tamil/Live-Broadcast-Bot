@@ -314,6 +314,8 @@ async def forward_message(event):
 @user_client.on(events.NewMessage(chats=source_channel3))  # Changed source_channel2 to source_channel3
 async def forward_message(event):
     user_id = event.sender_id
+    if event.message.text == "Bot Started!":
+        return
     if not event.is_private:
         try:
             if event.message.media:
