@@ -316,9 +316,6 @@ async def forward_message(event):
     user_id = event.sender_id
     if not event.is_private:
         try:
-            # Wait for 1 hour (3600 seconds)
-            await asyncio.sleep(3600)
-
             if event.message.media:
                 if getattr(event.message, 'message', None):
                     replaced_caption3 = await replace_links_in_caption3(event.message.message)  # Changed to replace_links_in_caption3
