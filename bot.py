@@ -3,6 +3,7 @@ import re
 import asyncio
 import aiohttp
 import traceback
+import pymongo
 from datetime import datetime
 from telethon import TelegramClient, events, Button, sync
 from telethon.sessions import StringSession
@@ -185,6 +186,114 @@ async def get_id(event):
             result += f"**⏩ Forwarder ID :-** `{forwarder}`"
 
     await event.respond(result, parse_mode='markdown')
+
+# MongoDB connection setup
+def init_db():
+    client = pymongo.MongoClient("mongodb+srv://KarthikMovies:KarthikUK007@cluster0.4l5byki.mongodb.net/?retryWrites=true&w=majority")  # Change the URI for remote DB if needed
+    db = client["channel_data"]  # Database name
+    collection = db["channels"]  # Collection name
+    return collection
+
+# Insert or Update Channel Info in MongoDB
+def set_channel(user_id, source_channel_id, destination_channel_ids, original_text, replace_text, my_link, web_link, my_username, command_type):
+    collection = init_db()
+
+    # Prepare data to insert or update
+    channel_data = {
+        "user_id": user_id,
+        "source_channel_id": source_channel_id,
+        "destination_channel_ids": destination_channel_ids,
+        "original_text": original_text,
+        "replace_text": replace_text,
+        "my_link": my_link,
+        "web_link": web_link,
+        "my_username": my_username,
+        "title": title,
+        "command_type": command_type
+    }
+
+    # Insert or update the document
+    collection.update_one(
+        {"user_id": user_id},  # Filter by user_id
+        {"$set": channel_data},  # Update the document with the new data
+        upsert=True  # If the document doesn't exist, insert it
+    )
+
+@StarBotsTamil.on(events.NewMessage(pattern="/set_channel 1"))
+async def set_channel_command_1(event):
+    user_id = event.sender_id
+    args = event.message.text.split()
+
+    # Ensure there are enough arguments
+    if len(args) < 9:
+        await event.reply("Usage: /set_channel 1 <source_channel_id> <destination_channel_ids> <original:replace> <my_link> <web_link> <my_username> <title>")
+        return
+
+    source_channel_id = args[1]
+    destination_channel_ids = args[2].split(',')
+    original_text, replace_text = args[3].split(':')
+    my_link = None if args[4] == "None" else args[4]
+    web_link = None if args[5] == "None" else args[5]
+    my_username = None if args[6] == "None" else args[6]
+    title = ' '.join(args[7:])  # Everything after the 7th index is the title
+
+    # Prepare data to store in MongoDB
+    data = {
+        "user_id": user_id,
+        "command_type": 1,
+        "source_channel_id": source_channel_id,
+        "destination_channel_ids": destination_channel_ids,
+        "original_text": original_text,
+        "replace_text": replace_text,
+        "my_link": my_link,
+        "web_link": web_link,
+        "my_username": my_username,
+        "title": title  # Save title in the database
+    }
+
+    # Insert or update the document in the database
+    collection = init_db()
+    collection.update_one(
+        {"user_id": user_id, "command_type": 1},
+        {"$set": data},
+        upsert=True
+    )
+
+    await event.reply(f"Channel settings have been updated for Command Type 1 with title '{title}'")
+
+@StarBotsTamil.on(events.NewMessage(pattern="/get_channel 1"))
+async def get_channel_command_1(event):
+    user_id = event.sender_id
+
+    # Fetch channel data from MongoDB for command_type 1
+    collection = init_db()
+    channel_data = collection.find_one({"user_id": user_id, "command_type": 1})
+
+    if channel_data:
+        # Extracting relevant information including title
+        title = channel_data.get("title", "No title set")
+        source_channel_id = channel_data.get("source_channel_id")
+        destination_channel_ids = channel_data.get("destination_channel_ids")
+        original_text = channel_data.get("original_text")
+        replace_text = channel_data.get("replace_text")
+        my_link = channel_data.get("my_link") if channel_data.get("my_link") else "None"
+        web_link = channel_data.get("web_link")
+        my_username = channel_data.get("my_username")
+
+        # Sending the response to the user with all the stored information
+        await event.reply(f"""
+        Command Type: 1
+        Title: {title}
+        Source Channel ID: {source_channel_id}
+        Destination Channel IDs: {', '.join(map(str, destination_channel_ids))}
+        Original Text: {original_text}
+        Replace Text: {replace_text}
+        My Link: {my_link}
+        Web Link: {web_link}
+        My Username: {my_username}
+        """)
+    else:
+        await event.reply("No channel information found for Command Type 1. Please set your channel using /set_channel.")
 
 # First Forward 
 async def replace_links_in_message(message):
