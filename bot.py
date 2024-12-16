@@ -219,6 +219,17 @@ def set_channel(user_id, source_channel_id, destination_channel_ids, original_te
         upsert=True  # If the document doesn't exist, insert it
     )
 
+def get_channel(user_id):
+    collection = init_db()
+
+    # Fetch the channel data for the given user_id
+    channel_data = collection.find_one({"user_id": user_id})
+
+    if channel_data:
+        return channel_data
+    else:
+        return None
+
 @StarBotsTamil.on(events.NewMessage(pattern="/set_channel 1"))
 async def set_channel_command_1(event):
     user_id = event.sender_id
