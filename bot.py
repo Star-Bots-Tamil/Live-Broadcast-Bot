@@ -196,6 +196,7 @@ def get_channel(user_id):
 
 @StarBotsTamil.on(events.NewMessage(pattern="/set_channel"))
 async def set_channel_command(event):
+    # Check if the user is an admin
     if event.sender_id not in admin_user_id:
         await event.reply("You do not have permission to use this command.")
         return
@@ -204,25 +205,25 @@ async def set_channel_command(event):
     if len(args) < 9:
         await event.reply("Usage: /set_channel <command_type> <source_channel_id> <destination_channel_ids> <original:replace> <my_link> <web_link> <my_username> <title>")
         return
-    command_type = int(args[1])  # Get command_type (1, 2, 3, or 4)
+    command_type = int(args[1])  # Command type (1, 2, 3, or 4)
     source_channel_id = args[2]
-    destination_channel_ids = args[3].split(',')
-    original_text, replace_text = args[4].split(':')
+    destination_channel_ids = args[3:]  # Take all the remaining arguments as destination channel IDs
+    original_text, replace_text = args[4].split(':')  # Text replacement pattern
     my_link = None if args[5] == "None" else args[5]
     web_link = None if args[6] == "None" else args[6]
     my_username = None if args[7] == "None" else args[7]
-    title = ' '.join(args[8:])  # Everything after the 8th index is the title
+    title = ' '.join(args[8:])  # Everything after the 8th argument is the title
     data = {
         "user_id": user_id,
         "command_type": command_type,
         "source_channel_id": source_channel_id,
-        "destination_channel_ids": destination_channel_ids,
+        "destination_channel_ids": destination_channel_ids,  # This will be a list of destination channels
         "original_text": original_text,
         "replace_text": replace_text,
         "my_link": my_link,
         "web_link": web_link,
         "my_username": my_username,
-        "title": title  # Save title in the database
+        "title": title  # Save the title for the command
     }
     collection = init_db()
     collection.update_one(
