@@ -196,6 +196,9 @@ def get_channel(user_id):
 
 @StarBotsTamil.on(events.NewMessage(pattern="/set_channel"))
 async def set_channel_command(event):
+    if event.sender_id not in admin_user_id:
+        await event.reply("You do not have permission to use this command.")
+        return
     user_id = event.sender_id
     args = event.message.text.split()
     if len(args) < 9:
@@ -232,6 +235,9 @@ async def set_channel_command(event):
 @StarBotsTamil.on(events.NewMessage(pattern="/get_channel"))
 async def get_channel_command(event):
     user_id = event.sender_id
+    if event.sender_id not in admin_user_id:
+        await event.reply("You do not have permission to use this command.")
+        return
     args = event.message.text.split()
     if len(args) < 2:
         await event.reply("Usage: /get_channel <command_type>")
@@ -274,7 +280,15 @@ async def replace_links_in_caption(caption, web_link, my_link, my_username, orig
         caption = re.sub(r'@[\w]+', my_username, caption)
     caption = caption.replace(original_text, replace_text)
     return caption
-    
+
+command_type_to_channels = {
+    1: ["source_channel"],  # Command type 1 has these channels
+    2: ["source_channel_2"],  # Command type 2 has these channels
+    3: ["source_channel_3"],  # Command type 3 has these channels
+    4: ["source_channel_4"],  # Command type 4 has these channels
+    5: ["source_channel_5"],  # Command type 5 has these channels
+}
+
 source_channel = command_type_to_channels.get(1, [])  # Get channels for command type 1
 if source_channel:
     @user_client.on(events.NewMessage(chats=source_channel[0]))  # Listen to the source channel for command type 1
