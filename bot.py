@@ -230,28 +230,29 @@ def get_channel(user_id):
     else:
         return None
 
-@StarBotsTamil.on(events.NewMessage(pattern="/set_channel 1"))
-async def set_channel_command_1(event):
+@StarBotsTamil.on(events.NewMessage(pattern="/set_channel"))
+async def set_channel_command(event):
     user_id = event.sender_id
     args = event.message.text.split()
 
     # Ensure there are enough arguments
     if len(args) < 9:
-        await event.reply("Usage: /set_channel 1 <source_channel_id> <destination_channel_ids> <original:replace> <my_link> <web_link> <my_username> <title>")
+        await event.reply("Usage: /set_channel <command_type> <source_channel_id> <destination_channel_ids> <original:replace> <my_link> <web_link> <my_username> <title>")
         return
 
-    source_channel_id = args[1]
-    destination_channel_ids = args[2].split(',')
-    original_text, replace_text = args[3].split(':')
-    my_link = None if args[4] == "None" else args[4]
-    web_link = None if args[5] == "None" else args[5]
-    my_username = None if args[6] == "None" else args[6]
-    title = ' '.join(args[7:])  # Everything after the 7th index is the title
+    command_type = int(args[1])  # Get command_type (1, 2, 3, or 4)
+    source_channel_id = args[2]
+    destination_channel_ids = args[3].split(',')
+    original_text, replace_text = args[4].split(':')
+    my_link = None if args[5] == "None" else args[5]
+    web_link = None if args[6] == "None" else args[6]
+    my_username = None if args[7] == "None" else args[7]
+    title = ' '.join(args[8:])  # Everything after the 8th index is the title
 
     # Prepare data to store in MongoDB
     data = {
         "user_id": user_id,
-        "command_type": 1,
+        "command_type": command_type,
         "source_channel_id": source_channel_id,
         "destination_channel_ids": destination_channel_ids,
         "original_text": original_text,
@@ -265,46 +266,47 @@ async def set_channel_command_1(event):
     # Insert or update the document in the database
     collection = init_db()
     collection.update_one(
-        {"user_id": user_id, "command_type": 1},
+        {"user_id": user_id, "command_type": command_type},
         {"$set": data},
         upsert=True
     )
 
-    await event.reply(f"Channel settings have been updated for Command Type 1 with title '{title}'")
+    # Reply to user confirming the data has been saved
+    await event.reply(f"Channel settings have been updated for Command Type {command_type} with title '{title}'")
 
-@StarBotsTamil.on(events.NewMessage(pattern="/get_channel 1"))
-async def get_channel_command_1(event):
+@StarBotsTamil.on(events.NewMessage(pattern="/get_channel"))
+async def get_channel_command(event):
     user_id = event.sender_id
+    args = event.message.text.split()
 
-    # Fetch channel data from MongoDB for command_type 1
+    # Ensure the user has provided the command_type argument
+    if len(args) < 2:
+        await event.reply("Usage: /get_channel <command_type>")
+        return
+
+    command_type = int(args[1])  # Get command_type (1, 2, 3, or 4)
+
+    # Query the database for the specified user_id and command_type
     collection = init_db()
-    channel_data = collection.find_one({"user_id": user_id, "command_type": 1})
+    channel_data = collection.find_one({"user_id": user_id, "command_type": command_type})
 
     if channel_data:
-        # Extracting relevant information including title
-        title = channel_data.get("title", "No title set")
-        source_channel_id = channel_data.get("source_channel_id")
-        destination_channel_ids = channel_data.get("destination_channel_ids")
-        original_text = channel_data.get("original_text")
-        replace_text = channel_data.get("replace_text")
-        my_link = channel_data.get("my_link") if channel_data.get("my_link") else "None"
-        web_link = channel_data.get("web_link")
-        my_username = channel_data.get("my_username")
-
-        # Sending the response to the user with all the stored information
-        await event.reply(f"""
-        Command Type: 1
-        Title: {title}
-        Source Channel ID: {source_channel_id}
-        Destination Channel IDs: {', '.join(map(str, destination_channel_ids))}
-        Original Text: {original_text}
-        Replace Text: {replace_text}
-        My Link: {my_link}
-        Web Link: {web_link}
-        My Username: {my_username}
-        """)
+        # Format the response with channel data
+        response = f"Command Type {command_type} settings for user {user_id}:\n"
+        response += f"Source Channel ID: {channel_data['source_channel_id']}\n"
+        response += f"Destination Channel IDs: {', '.join(channel_data['destination_channel_ids'])}\n"
+        response += f"Original Text: {channel_data['original_text']}\n"
+        response += f"Replace Text: {channel_data['replace_text']}\n"
+        response += f"My Link: {channel_data['my_link'] if channel_data['my_link'] else 'None'}\n"
+        response += f"Web Link: {channel_data['web_link'] if channel_data['web_link'] else 'None'}\n"
+        response += f"My Username: {channel_data['my_username'] if channel_data['my_username'] else 'None'}\n"
+        response += f"Title: {channel_data['title']}\n"
     else:
-        await event.reply("No channel information found for Command Type 1. Please set your channel using /set_channel.")
+        # If no data found for this user_id and command_type
+        response = f"No settings found for Command Type {command_type} for user {user_id}."
+
+    # Send the response to the user
+    await event.reply(response)
 
 # First Forward 
 async def replace_links_in_message(message):
