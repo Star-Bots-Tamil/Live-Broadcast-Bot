@@ -194,11 +194,8 @@ def init_db():
     collection = db["channels"]  # Collection name
     return collection
 
-# Insert or Update Channel Info in MongoDB
 def set_channel(user_id, source_channel_id, destination_channel_ids, original_text, replace_text, my_link, web_link, my_username, command_type):
     collection = init_db()
-
-    # Prepare data to insert or update
     channel_data = {
         "user_id": user_id,
         "source_channel_id": source_channel_id,
@@ -211,8 +208,6 @@ def set_channel(user_id, source_channel_id, destination_channel_ids, original_te
         "title": title,
         "command_type": command_type
     }
-
-    # Insert or update the document
     collection.update_one(
         {"user_id": user_id},  # Filter by user_id
         {"$set": channel_data},  # Update the document with the new data
@@ -221,10 +216,7 @@ def set_channel(user_id, source_channel_id, destination_channel_ids, original_te
 
 def get_channel(user_id):
     collection = init_db()
-
-    # Fetch the channel data for the given user_id
     channel_data = collection.find_one({"user_id": user_id})
-
     if channel_data:
         return channel_data
     else:
@@ -234,12 +226,9 @@ def get_channel(user_id):
 async def set_channel_command(event):
     user_id = event.sender_id
     args = event.message.text.split()
-
-    # Ensure there are enough arguments
     if len(args) < 9:
         await event.reply("Usage: /set_channel <command_type> <source_channel_id> <destination_channel_ids> <original:replace> <my_link> <web_link> <my_username> <title>")
         return
-
     command_type = int(args[1])  # Get command_type (1, 2, 3, or 4)
     source_channel_id = args[2]
     destination_channel_ids = args[3].split(',')
@@ -248,8 +237,6 @@ async def set_channel_command(event):
     web_link = None if args[6] == "None" else args[6]
     my_username = None if args[7] == "None" else args[7]
     title = ' '.join(args[8:])  # Everything after the 8th index is the title
-
-    # Prepare data to store in MongoDB
     data = {
         "user_id": user_id,
         "command_type": command_type,
@@ -262,36 +249,27 @@ async def set_channel_command(event):
         "my_username": my_username,
         "title": title  # Save title in the database
     }
-
-    # Insert or update the document in the database
     collection = init_db()
     collection.update_one(
         {"user_id": user_id, "command_type": command_type},
         {"$set": data},
         upsert=True
     )
-
-    # Reply to user confirming the data has been saved
     await event.reply(f"Channel settings have been updated for Command Type {command_type} with title '{title}'")
 
 @StarBotsTamil.on(events.NewMessage(pattern="/get_channel"))
 async def get_channel_command(event):
     user_id = event.sender_id
     args = event.message.text.split()
-
-    # Ensure the user has provided the command_type argument
     if len(args) < 2:
         await event.reply("Usage: /get_channel <command_type>")
         return
 
     command_type = int(args[1])  # Get command_type (1, 2, 3, or 4)
-
-    # Query the database for the specified user_id and command_type
     collection = init_db()
     channel_data = collection.find_one({"user_id": user_id, "command_type": command_type})
 
     if channel_data:
-        # Format the response with channel data
         response = f"Command Type {command_type} settings for user {user_id}:\n"
         response += f"Source Channel ID: {channel_data['source_channel_id']}\n"
         response += f"Destination Channel IDs: {', '.join(channel_data['destination_channel_ids'])}\n"
@@ -302,11 +280,70 @@ async def get_channel_command(event):
         response += f"My Username: {channel_data['my_username'] if channel_data['my_username'] else 'None'}\n"
         response += f"Title: {channel_data['title']}\n"
     else:
-        # If no data found for this user_id and command_type
         response = f"No settings found for Command Type {command_type} for user {user_id}."
-
-    # Send the response to the user
     await event.reply(response)
+
+async def replace_links_in_message(message, web_link, my_link, my_username, original_text, replace_text):
+    if web_link:
+        message = re.sub(r'https?://tcvvip5\.com/#/register\?r_code=44YWW823408', web_link, message)
+    if my_link:
+        message = re.sub(r'https?://t\.me\S*|t\.me\S*', my_link, message)
+    if my_username:
+        message = re.sub(r'@[\w]+', my_username, message)
+    message = message.replace(original_text, replace_text)
+    return message
+
+async def replace_links_in_caption(caption, web_link, my_link, my_username, original_text, replace_text):
+    if web_link:
+        caption = re.sub(r'https?://tcvvip5\.com/#/register\?r_code=44YWW823408', web_link, caption)
+    if my_link:
+        caption = re.sub(r'https?://t\.me\S*|t\.me\S*', my_link, caption)
+    if my_username:
+        caption = re.sub(r'@[\w]+', my_username, caption)
+    caption = caption.replace(original_text, replace_text)
+    return caption
+
+@user_client.on(events.NewMessage(chats=source_channel3))  # Change source_channel3 to your actual source channel
+async def forward_message(event):
+    user_id = event.sender_id
+    if event.message.text == "Bot Started!":
+        return
+    channel_data = get_channel(user_id)
+    if not channel_data:
+        logger.error(f"No data found for user_id: {user_id}")
+        return  # If no data is found for the user, do not proceed
+    source_channel = channel_data.get("source_channel_id", "")
+    destination_channels = channel_data.get("destination_channel_ids", [])
+    original_text = channel_data.get("original_text", "")
+    replace_text = channel_data.get("replace_text", "")
+    my_link = channel_data.get("my_link", "")
+    web_link = channel_data.get("web_link", "")
+    my_username = channel_data.get("my_username", "")
+    logger.info(f"Fetched data for user {user_id}: source_channel={source_channel}, destination_channels={destination_channels}, "
+                f"original_text={original_text}, replace_text={replace_text}, my_link={my_link}, web_link={web_link}, my_username={my_username}")
+    if not event.is_private:  # Proceed only if the event is not private
+        try:
+            if event.message.media:  # If the message contains media
+                if getattr(event.message, 'message', None):
+                    replaced_caption = await replace_links_in_caption(event.message.message, web_link, my_link, my_username, original_text, replace_text)
+                    event.message.message = replaced_caption
+                for destination_channel_id in destination_channels:
+                    await event.client.send_message(destination_channel_id, event.message)
+            else:  # If the message is just text, replace links in the message text
+                replaced_message = await replace_links_in_message(event.message.text, web_link, my_link, my_username, original_text, replace_text)
+                for destination_channel_id in destination_channels:
+                    await event.client.send_message(destination_channel_id, replaced_message)
+        except Exception as e:
+            logger.error(f"Failed to forward the message: {str(e)}")
+
+
+
+
+
+
+
+
+
 
 # First Forward 
 async def replace_links_in_message(message):
@@ -392,7 +429,60 @@ async def replace_links_in_caption4(caption):
     caption = caption.replace('/qbleech2', '/qbleech')
     return caption
 
-# First Forward 
+# First Forward
+@user_client.on(events.NewMessage(chats=source_channel))  # Changed source_channel2 to source_channel3
+async def forward_message(event):
+    user_id = event.sender_id
+    
+    if event.message.text == "Bot Started!":
+        return
+
+    # Fetch channel data from MongoDB using user_id
+    channel_data = get_channel(user_id)
+    if not channel_data:
+        logger.error(f"No data found for user_id: {user_id}")
+        return  # If no data is found for the user, do not proceed
+
+    # Extract relevant data from the fetched channel_data
+    source_channel = channel_data.get("source_channel_id", "")
+    destination_channels = channel_data.get("destination_channel_ids", [])
+    original_text = channel_data.get("original_text", "")
+    replace_text = channel_data.get("replace_text", "")
+    my_link = channel_data.get("my_link", "")
+    web_link = channel_data.get("web_link", "")
+    my_username = channel_data.get("my_username", "")
+
+    # Log the fetched data (for debugging or verification)
+    logger.info(f"Fetched data for user {user_id}: source_channel={source_channel}, destination_channels={destination_channels}, "
+                f"original_text={original_text}, replace_text={replace_text}, my_link={my_link}, web_link={web_link}, my_username={my_username}")
+
+    if not event.is_private:  # Proceed only if the event is not private
+        try:
+            if event.message.media:  # If the message contains media
+                # If there is a message caption, replace links in the caption
+                if getattr(event.message, 'message', None):
+                    replaced_caption = await replace_links_in_caption(event.message.message)
+                    event.message.message = replaced_caption
+                
+                # Forward the media message to the destination channels
+                for destination_channel_id in destination_channels:
+                    await event.client.send_message(destination_channel_id, event.message)
+
+            else:  # If the message is just text, replace links in the message text
+                replaced_message = await replace_links_in_message(event.message.text)
+                
+                # Forward the replaced text message to the destination channels
+                for destination_channel_id in destination_channels:
+                    await event.client.send_message(destination_channel_id, replaced_message)
+
+        except Exception as e:
+            logger.error(f"Failed to forward the message: {str(e)}")
+
+
+
+
+
+
 forwarded_messages = {}
 
 @user_client.on(events.NewMessage(chats=source_channel))
