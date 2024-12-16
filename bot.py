@@ -282,47 +282,57 @@ command_type_to_channels = {
     4: ["source_channel_4"],  # Command type 4 has these channels
     5: ["source_channel_5"],  # Command type 5 has these channels
 }
-for command_type, channels in command_type_to_channels.items():
-    @user_client.on(events.NewMessage(chats=channels))  # Dynamically listening to channels based on command_type
-    async def forward_message(event):
-        user_id = event.sender_id
-        if event.message.text == "Bot Started!":
-            return
-        channel_data = get_channel(user_id)
-        if not channel_data:
-            logger.error(f"No data found for user_id: {user_id}")
-            return  # If no data is found for the user, do not proceed
-        command_type_data = None
-        for config in channel_data:
-            if config.get("command_type") == command_type:
-                command_type_data = config
-                break
-        if not command_type_data:
-            logger.error(f"No settings found for command_type {command_type} for user_id: {user_id}")
-            return  # If no settings are found for the identified command_type, skip processing
-        source_channel_id = command_type_data.get("source_channel_id", "")
-        destination_channels = command_type_data.get("destination_channel_ids", [])
-        original_text = command_type_data.get("original_text", "")
-        replace_text = command_type_data.get("replace_text", "")
-        my_link = command_type_data.get("my_link", "")
-        web_link = command_type_data.get("web_link", "")
-        my_username = command_type_data.get("my_username", "")
-        logger.info(f"Handling command_type {command_type} for user {user_id}: source_channel={source_channel_id}, destination_channels={destination_channels}")
-        if not event.is_private:
-            try:
-                if event.message.media:  
-                    if getattr(event.message, 'message', None):
-                        replaced_caption = await replace_links_in_caption(event.message.message, web_link, my_link, my_username, original_text, replace_text)
-                        event.message.message = replaced_caption
-                    for destination_channel_id in destination_channels:
-                        await event.client.send_message(destination_channel_id, event.message)
-                else:  # If the message is just text
-                    replaced_message = await replace_links_in_message(event.message.text, web_link, my_link, my_username, original_text, replace_text)
-                    for destination_channel_id in destination_channels:
-                        await event.client.send_message(destination_channel_id, replaced_message)
-            except Exception as e:
-                logger.error(f"Failed to forward the message for command_type {command_type}: {str(e)}")
 
+# Create event listeners dynamically for each command type
+for command_type, channels in command_type_to_channels.items():
+    # Assuming only one source channel per command_type
+    if len(channels) == 1:
+        @user_client.on(events.NewMessage(chats=channels[0]))  # Listen to the single channel for the current command type
+        async def forward_message(event, command_type=command_type):  # Pass command_type explicitly
+            user_id = event.sender_id
+            if event.message.text == "Bot Started!":
+                return
+
+            # Fetch all stored data for the user
+            channel_data = get_channel(user_id)
+            if not channel_data:
+                logger.error(f"No data found for user_id: {user_id}")
+                return  # If no data is found for the user, do not proceed
+
+            # Fetch settings based on command_type
+            command_type_data = next((config for config in channel_data if config.get("command_type") == command_type), None)
+            if not command_type_data:
+                logger.error(f"No settings found for command_type {command_type} for user_id: {user_id}")
+                return  # If no settings are found for the identified command_type, skip processing
+
+            # Extract necessary configuration for forwarding
+            destination_channels = command_type_data.get("destination_channel_ids", [])
+            original_text = command_type_data.get("original_text", "")
+            replace_text = command_type_data.get("replace_text", "")
+            my_link = command_type_data.get("my_link", "")
+            web_link = command_type_data.get("web_link", "")
+            my_username = command_type_data.get("my_username", "")
+            
+            logger.info(f"Handling command_type {command_type} for user {user_id}: destination_channels={destination_channels}")
+
+            # Proceed only if the message is not private
+            if not event.is_private:
+                try:
+                    if event.message.media:  # If the message contains media
+                        if getattr(event.message, 'message', None):  # If the media has a caption
+                            replaced_caption = await replace_links_in_caption(event.message.message, web_link, my_link, my_username, original_text, replace_text)
+                            event.message.message = replaced_caption
+                        for destination_channel_id in destination_channels:
+                            await event.client.send_message(destination_channel_id, event.message)
+                    
+                    else:  # If the message is just text
+                        replaced_message = await replace_links_in_message(event.message.text, web_link, my_link, my_username, original_text, replace_text)
+                        for destination_channel_id in destination_channels:
+                            await event.client.send_message(destination_channel_id, replaced_message)
+
+                except Exception as e:
+                    logger.error(f"Failed to forward the message for command_type {command_type}: {str(e)}")
+                    
 #Define your aiohttp web server handler
 async def root_route_handler(request):
     return web.json_response(text="Bot Maintenance By :- https://telegram.me/Star_Bots_Tamil")
