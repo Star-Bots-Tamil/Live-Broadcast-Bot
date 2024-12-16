@@ -275,6 +275,35 @@ async def replace_links_in_caption(caption, web_link, my_link, my_username, orig
     caption = caption.replace(original_text, replace_text)
     return caption
 
+async def forward_message(event):
+    user_id = event.sender_id
+    if event.message.text == "Bot Started!":
+        return
+    if not event.is_private:
+        try:
+            if event.message.media:
+                if getattr(event.message, 'message', None):
+                    replaced_caption = await replace_links_in_caption(
+                        event.message.message,
+                        web_link, my_link, my_username, original_text, replace_text
+                    )
+                    event.message.message = replaced_caption
+                
+                for destination_channel_id in destination_channels:
+                    await event.client.send_message(destination_channel_id, event.message)
+
+            else:
+                replaced_message = await replace_links_in_message(
+                    event.message.text,
+                    web_link, my_link, my_username, original_text, replace_text
+                )
+                
+                for destination_channel_id in destination_channels:
+                    await event.client.send_message(destination_channel_id, replaced_message)
+
+        except Exception as e:
+            logger.error(f"Failed to forward the message from {user_id}: {str(e)}")
+
 command_type_to_channels = {
     1: ["source_channel_1"],  # Command type 1 has these channels
     2: ["source_channel_2"],  # Command type 2 has these channels
