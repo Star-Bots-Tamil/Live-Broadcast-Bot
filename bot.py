@@ -282,53 +282,69 @@ async def replace_links_in_caption(caption, web_link, my_link, my_username, orig
     caption = caption.replace(original_text, replace_text)
     return caption
 
+# Assuming command_type_to_channels maps command types to source channels
 command_type_to_channels = {
-    1: ["source_channel"],  # Command type 1 has these channels
-    2: ["source_channel_2"],  # Command type 2 has these channels
-    3: ["source_channel_3"],  # Command type 3 has these channels
-    4: ["source_channel_4"],  # Command type 4 has these channels
-    5: ["source_channel_5"],  # Command type 5 has these channels
+    1: ["source_channel"],  # Command type 1 has this source channel
+    2: ["source_channel_2"],  # Command type 2 has this source channel
+    3: ["source_channel_3"],  # Command type 3 has this source channel
+    4: ["source_channel_4"],  # Command type 4 has this source channel
+    5: ["source_channel_5"],  # Command type 5 has this source channel
 }
 
-source_channel = command_type_to_channels.get(1, [])  # Get channels for command type 1
-if source_channel:
-    @user_client.on(events.NewMessage(chats=source_channel[0]))  # Listen to the source channel for command type 1
-    async def forward_message(event, command_type=1):  # Pass command_type explicitly
-        user_id = event.sender_id
-        if event.message.text == "Bot Started!":
-            return
-        channel_data = get_channel(user_id)
-        if not channel_data:
-            logger.error(f"No data found for user_id: {user_id}")
-            return  # If no data is found for the user, do not proceed
-        command_type_data = next((config for config in channel_data if config.get("command_type") == command_type), None)
-        if not command_type_data:
-            logger.error(f"No settings found for command_type {command_type} for user_id: {user_id}")
-            return  # If no settings are found for the identified command_type, skip processing
-        destination_channels = command_type_data.get("destination_channel_ids", [])
-        original_text = command_type_data.get("original_text", "")
-        replace_text = command_type_data.get("replace_text", "")
-        my_link = command_type_data.get("my_link", "")
-        web_link = command_type_data.get("web_link", "")
-        my_username = command_type_data.get("my_username", "")
-        logger.info(f"Handling command_type {command_type} for user {user_id}: destination_channels={destination_channels}")
-        if not event.is_private:
-            try:
-                if event.message.media:  # If the message contains media
-                    if getattr(event.message, 'message', None):  # If the media has a caption
-                        replaced_caption = await replace_links_in_caption(event.message.message, web_link, my_link, my_username, original_text, replace_text)
-                        event.message.message = replaced_caption
-                    for destination_channel_id in destination_channels:
-                        await event.client.send_message(destination_channel_id, event.message)
-                
-                else:  # If the message is just text
-                    replaced_message = await replace_links_in_message(event.message.text, web_link, my_link, my_username, original_text, replace_text)
-                    for destination_channel_id in destination_channels:
-                        await event.client.send_message(destination_channel_id, replaced_message)
+# Function to retrieve all data related to command_type 1
+async def get_command_type_1_data(user_id):
+    # Get channel data for the user
+    channel_data = get_channel(user_id)
+    
+    if not channel_data:
+        logger.error(f"No channel data found for user_id: {user_id}")
+        return None
+    
+    # Find the configuration for command_type 1
+    command_type_data = next((config for config in channel_data if config.get("command_type") == 1), None)
+    
+    if not command_type_data:
+        logger.error(f"No settings found for command_type 1 for user_id: {user_id}")
+        return None
+    
+    return command_type_data
 
-            except Exception as e:
-                logger.error(f"Failed to forward the message for command_type {command_type}: {str(e)}")
-                
+@user_client.on(events.NewMessage(chats=command_type_to_channels[1]))  # Listen for messages from source_channel for command type 1
+async def forward_message(event):
+    user_id = event.sender_id
+    if not event.is_private:
+        try:
+            # Fetch all data related to command_type 1 for the user
+            command_type_data = await get_command_type_1_data(user_id)
+            
+            if not command_type_data:
+                return  # No valid data found for command type 1 for this user
+
+            # Get necessary settings from command_type_data
+            destination_channels = command_type_data.get("destination_channel_ids", [])
+            original_text = command_type_data.get("original_text", "")
+            replace_text = command_type_data.get("replace_text", "")
+            my_link = command_type_data.get("my_link", "")
+            web_link = command_type_data.get("web_link", "")
+            my_username = command_type_data.get("my_username", "")
+
+            logger.info(f"Handling command_type 1 for user {user_id}: destination_channels={destination_channels}")
+
+            # Forward the message based on whether it is media or text
+            if event.message.media:
+                if getattr(event.message, 'text', None):
+                    replaced_message = await replace_links_in_message(event.message.text, web_link, my_link, my_username, original_text, replace_text)
+                    event.message.text = replaced_message
+                for destination_channel_id in destination_channels:
+                    await event.client.send_message(destination_channel_id, event.message)
+            else:
+                replaced_message = await replace_links_in_message(event.message.text, web_link, my_link, my_username, original_text, replace_text)
+                for destination_channel_id in destination_channels:
+                    await event.client.send_message(destination_channel_id, replaced_message)
+        
+        except Exception as e:
+            logger.error(f"Failed to forward the message: {str(e)}")
+            
 # For command type 2, create a similar listener for source channel 2
 source_channel_2 = command_type_to_channels.get(2, [])  # Get channels for command type 2
 if source_channel_2:
