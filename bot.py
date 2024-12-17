@@ -205,18 +205,28 @@ async def set_channel_command(event):
     if event.sender_id not in admin_user_id:
         await event.reply("You do not have permission to use this command.")
         return
+
     user_id = event.sender_id
     args = event.message.text.split()
+
+    # Ensure the correct number of arguments
     if len(args) < 8:
         await event.reply("Usage: /set_channel <command_type> <destination_channel_ids> <original:replace> <my_link> <web_link> <my_username> <title>")
         return
+
     command_type = int(args[1])  # Command type (1, 2, 3, or 4)
-    destination_channel_ids = args[2:]  # Take all the remaining arguments as destination channel IDs
+    destination_channel_ids = args[2].split(',')  # Destination channel IDs are expected as comma-separated values
     original_text, replace_text = args[3].split(':')  # Text replacement pattern
-    my_link = None if args[4] == "None" else args[5]
-    web_link = None if args[5] == "None" else args[6]
-    my_username = None if args[6] == "None" else args[7]
-    title = ' '.join(args[7:])  # Everything after the 8th argument is the title
+
+    # Handle optional fields (None check)
+    my_link = None if args[4] == "None" else args[4]
+    web_link = None if args[5] == "None" else args[5]
+    my_username = None if args[6] == "None" else args[6]
+
+    # Everything after the 7th argument is considered the title
+    title = ' '.join(args[7:])
+
+    # Prepare data for the database
     data = {
         "user_id": user_id,
         "command_type": command_type,
@@ -228,32 +238,41 @@ async def set_channel_command(event):
         "my_username": my_username,
         "title": title  # Save the title for the command
     }
+
+    # Insert or update the document in the database
     collection = init_db()
     collection.update_one(
         {"user_id": user_id, "command_type": command_type},
         {"$set": data},
         upsert=True
     )
+
     await event.reply(f"Channel settings have been updated for Command Type {command_type} with title '{title}'")
 
 @StarBotsTamil.on(events.NewMessage(pattern="/get_channel"))
 async def get_channel_command(event):
     user_id = event.sender_id
+
+    # Check if the user is an admin
     if event.sender_id not in admin_user_id:
         await event.reply("You do not have permission to use this command.")
         return
+
     args = event.message.text.split()
+
+    # Ensure the correct number of arguments
     if len(args) < 2:
         await event.reply("Usage: /get_channel <command_type>")
         return
 
     command_type = int(args[1])  # Get command_type (1, 2, 3, or 4)
+
+    # Fetch settings from the database
     collection = init_db()
     channel_data = collection.find_one({"user_id": user_id, "command_type": command_type})
 
     if channel_data:
         response = f"Command Type {command_type} settings for user {user_id}:\n"
-        #response += f"Source Channel ID: {channel_data['source_channel_id']}\n"
         response += f"Destination Channel IDs: {', '.join(channel_data['destination_channel_ids'])}\n"
         response += f"Original Text: {channel_data['original_text']}\n"
         response += f"Replace Text: {channel_data['replace_text']}\n"
@@ -263,6 +282,7 @@ async def get_channel_command(event):
         response += f"Title: {channel_data['title']}\n"
     else:
         response = f"No settings found for Command Type {command_type} for user {user_id}."
+
     await event.reply(response)
 
 async def replace_links_in_message(message, web_link, my_link, my_username, original_text, replace_text):
