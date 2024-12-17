@@ -29,6 +29,12 @@ try:
     string_session = config("STRING_SESSION")
     user_client = TelegramClient(StringSession(string_session), api_id, api_hash)
     user_client.start()
+    source_channel = config("SOURCE_CHANNELS", cast=int)
+    source_channel2 = config("SOURCE_CHANNELS2", cast=int)
+    source_channel3 = config("SOURCE_CHANNELS3", cast=int)
+    source_channel4 = config("SOURCE_CHANNELS4", cast=int)
+    source_channel5 = config("SOURCE_CHANNELS5", cast=int)
+    source_channel6 = config("SOURCE_CHANNELS6", cast=int)
     admin_user_id = config("ADMIN_USER_ID", cast=int)
     StarBotsTamil = TelegramClient('starbot', api_id, api_hash).start(bot_token=bot_token)
 except Exception as e:
