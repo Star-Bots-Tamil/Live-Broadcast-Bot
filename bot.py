@@ -202,7 +202,7 @@ def get_channel(user_id):
 @StarBotsTamil.on(events.NewMessage(pattern="/set_channel"))
 async def set_channel_command(event):
     # Check if the user is an admin
-    if event.sender_id not in admin_user_id:
+    if event.sender_id != admin_user_id:
         await event.reply("You do not have permission to use this command.")
         return
 
@@ -254,7 +254,7 @@ async def get_channel_command(event):
     user_id = event.sender_id
 
     # Check if the user is an admin
-    if event.sender_id not in admin_user_id:
+    if event.sender_id != admin_user_id:
         await event.reply("You do not have permission to use this command.")
         return
 
