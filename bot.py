@@ -2,12 +2,14 @@ import logging
 import re
 import asyncio
 import aiohttp
+import traceback
 import pymongo
 from datetime import datetime
-from telethon import TelegramClient, events, Button
+from telethon import TelegramClient, events, Button, sync
 from telethon.sessions import StringSession
+from telethon.tl.types import PeerChannel, PeerChat, PeerUser
+from telethon.utils import get_display_name
 from telethon.tl.functions.users import GetFullUserRequest
-from telethon.tl.types import PeerChannel, PeerUser, PeerChat
 from decouple import config
 from aiohttp import web
 
@@ -15,7 +17,8 @@ from aiohttp import web
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 logging.getLogger("aiohttp").setLevel(logging.ERROR)
-
+app = web.Application()
+logger.info("Starting...")
 # Initialize Telegram Clients
 try:
     api_id = config("APP_ID", cast=int)
