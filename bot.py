@@ -135,7 +135,7 @@ async def get_id(event):
 
 # Message Forwarding Logic
 @user_client.on(events.NewMessage(chats=source_channels))  # Listen to the source_channel (list of channels)
-async def forward_message(event, command_type=1):
+async def forward_message(event, command_type={i}):
     user_id = event.sender_id
     if event.message.text == "Bot Started!":
         return  # Ignore the start message if it contains "Bot Started!"
@@ -198,27 +198,52 @@ async def replace_links_in_caption(caption, web_link, my_link, my_username, orig
     caption = caption.replace(original_text, replace_text)
     return caption
 
-# Define your aiohttp web server handler
+#Define your aiohttp web server handler
 async def root_route_handler(request):
     return web.json_response(text="Bot Maintenance By :- https://telegram.me/Star_Bots_Tamil")
 
-# Main function to run the bot
-async def main():
-    app = web.Application()
-    app.router.add_get("/", root_route_handler)
-    app.router.add_post(config("WEBHOOK_PATH"), telegram_webhook_handler)
+# Define your custom route for receiving updates from Telegram
+async def telegram_webhook_handler(request):
+    try:
+        data = await request.json()
+        await StarBotsTamil.process_updates(data)
+    except Exception as e:
+        print(f"Error processing Telegram update: {e}")
+    return web.Response()
 
+# Define your ping server
+async def ping_server():
+    sleep_time = config("PING_INTERVAL", cast=int)
+    while True:
+        await asyncio.sleep(sleep_time)
+        try:
+            async with aiohttp.ClientSession(
+                timeout=aiohttp.ClientTimeout(total=10)
+            ) as session:
+                async with session.get(config("URL")) as resp:
+                    logging.info("Pinged server with response: {}".format(resp.status))
+        except TimeoutError:
+            logging.warning("Couldn't connect to the site URL..!")
+        except Exception:
+            traceback.print_exc()
+
+# Your main function
+async def main():
+    webhook_path = config("WEBHOOK_PATH")
+    app.router.add_post(webhook_path, telegram_webhook_handler)
+    app.router.add_get("/", root_route_handler)
+
+# Start the web server
     port = config("PORT", cast=int)
     webhook_address = config("WEBHOOK_ADDRESS")
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, webhook_address, port)
     await site.start()
-
     # Start the Telethon client and ping server concurrently
     await asyncio.gather(StarBotsTamil.run_until_disconnected(), ping_server())
+    logger.info("Bot has Started.")
 
-# Start the bot
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())
