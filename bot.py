@@ -135,7 +135,7 @@ async def get_id(event):
 
 # Message Forwarding Logic
 @user_client.on(events.NewMessage(chats=source_channels))  # Listen to the source_channel (list of channels)
-async def forward_message(event, command_type={i}):
+async def forward_message(event, command_type=1):
     user_id = event.sender_id
     if event.message.text == "Bot Started!":
         return  # Ignore the start message if it contains "Bot Started!"
