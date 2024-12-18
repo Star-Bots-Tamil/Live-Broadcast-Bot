@@ -27,7 +27,7 @@ try:
     string_session = config("STRING_SESSION")
     user_client = TelegramClient(StringSession(string_session), api_id, api_hash)
     user_client.start()
-    source_channels = [config(f"SOURCE_CHANNELS{i}", cast=int) for i in range(1, 7)]  # Get multiple source channels from config
+    source_channels1 = config(f"SOURCE_CHANNELS1", cast=int) # Get multiple source channels from config
     admin_user_id = config("ADMIN_USER_ID", cast=int)
     StarBotsTamil = TelegramClient('starbot', api_id, api_hash).start(bot_token=bot_token)
 except Exception as e:
@@ -224,8 +224,7 @@ async def get_id(event):
         result += f"**💬 Forum/Topic ID :-** `{chat.message_thread_id}`\n"
     await event.respond(result, parse_mode='markdown')
 
-# Message Forwarding Logic
-@user_client.on(events.NewMessage(chats=source_channels))  # Listen to the source_channel (list of channels)
+@user_client.on(events.NewMessage(chats=source_channels1))  # Listen to the source_channel (list of channels)
 async def forward_message(event, command_type=1):
     user_id = event.sender_id
 
@@ -264,11 +263,15 @@ async def forward_message(event, command_type=1):
         # Send the message to each destination channel
         for destination_channel_id in destination_channels:
             try:
+                # Try to get the entity using the destination channel ID
                 destination_channel = await event.client.get_entity(destination_channel_id)
                 await event.client.send_message(destination_channel, event.message)
                 logger.info(f"Message forwarded to {destination_channel_id}")
+            except ValueError as e:
+                logger.error(f"Invalid entity ID for {destination_channel_id}: {e}")
             except Exception as e:
                 logger.error(f"Failed to forward message to {destination_channel_id}: {e}")
+
     else:
         # Handle text-only messages (replace links and text)
         replaced_message = await replace_links_in_message(
@@ -278,9 +281,12 @@ async def forward_message(event, command_type=1):
         # Send the replaced message to each destination channel
         for destination_channel_id in destination_channels:
             try:
+                # Try to get the entity using the destination channel ID
                 destination_channel = await event.client.get_entity(destination_channel_id)
                 await event.client.send_message(destination_channel, replaced_message)
                 logger.info(f"Message forwarded to {destination_channel_id}")
+            except ValueError as e:
+                logger.error(f"Invalid entity ID for {destination_channel_id}: {e}")
             except Exception as e:
                 logger.error(f"Failed to forward message to {destination_channel_id}: {e}")
 
