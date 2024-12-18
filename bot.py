@@ -228,8 +228,10 @@ async def get_id(event):
 @user_client.on(events.NewMessage(chats=source_channels))  # Listen to the source_channel (list of channels)
 async def forward_message(event, command_type=1):
     user_id = event.sender_id
+
+    # Ignore the "Bot Started!" message
     if event.message.text == "Bot Started!":
-        return  # Ignore the start message if it contains "Bot Started!"
+        return
 
     # Fetch the channel configuration based on command_type
     channel_data = get_channel(command_type)
@@ -237,6 +239,7 @@ async def forward_message(event, command_type=1):
         logger.error(f"No data found for command_type: {command_type}")
         return
 
+    # Extract data from the channel configuration
     destination_channels = channel_data.get("destination_channel_ids", [])
     original_text = channel_data.get("original_text", "")
     replace_text = channel_data.get("replace_text", "")
@@ -250,21 +253,37 @@ async def forward_message(event, command_type=1):
 
     logger.info(f"Handling command_type {command_type}: destination_channels={destination_channels}")
 
+    # Handle media messages
     if event.message.media:
-        if getattr(event.message, 'message', None):
+        if getattr(event.message, 'message', None):  # Check if message has caption
             replaced_caption = await replace_links_in_caption(
                 event.message.message, web_link, my_link, my_username, original_text, replace_text
             )
             event.message.message = replaced_caption
+
+        # Send the message to each destination channel
         for destination_channel_id in destination_channels:
-            await event.client.send_message(destination_channel_id, event.message)
+            try:
+                destination_channel = await event.client.get_entity(destination_channel_id)
+                await event.client.send_message(destination_channel, event.message)
+                logger.info(f"Message forwarded to {destination_channel_id}")
+            except Exception as e:
+                logger.error(f"Failed to forward message to {destination_channel_id}: {e}")
     else:
+        # Handle text-only messages (replace links and text)
         replaced_message = await replace_links_in_message(
             event.message.text, web_link, my_link, my_username, original_text, replace_text
         )
+
+        # Send the replaced message to each destination channel
         for destination_channel_id in destination_channels:
-            await event.client.send_message(destination_channel_id, replaced_message)
-            
+            try:
+                destination_channel = await event.client.get_entity(destination_channel_id)
+                await event.client.send_message(destination_channel, replaced_message)
+                logger.info(f"Message forwarded to {destination_channel_id}")
+            except Exception as e:
+                logger.error(f"Failed to forward message to {destination_channel_id}: {e}")
+
 async def replace_links_in_message(message, web_link, my_link, my_username, original_text, replace_text):
     if web_link:
         message = re.sub(r'https?://tcvvip5\.com/#/register\?r_code=44YWW823408', web_link, message)
