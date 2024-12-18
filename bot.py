@@ -147,7 +147,7 @@ async def get_channel_command(event):
         response += f"My Username: {channel_data['my_username'] if channel_data['my_username'] else 'None'}\n"
         response += f"Title: {channel_data['title']}\n"
     else:
-        response = f"No settings found for Command Type {command_type} for user {user_id}."
+        response = f"No settings found for Command Type {command_type}."
 
     await event.reply(response)
 
@@ -248,7 +248,7 @@ async def forward_message(event, command_type=1):
         logger.warning(f"No destination channels found for command_type {command_type}")
         return
 
-    logger.info(f"Handling command_type {command_type} for user {user_id}: destination_channels={destination_channels}")
+    logger.info(f"Handling command_type {command_type}: destination_channels={destination_channels}")
 
     if event.message.media:
         if getattr(event.message, 'message', None):
