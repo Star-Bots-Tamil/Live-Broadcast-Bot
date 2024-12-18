@@ -41,27 +41,30 @@ def init_db():
     db = client["channel_data"]
     return db["channels"]
 
-def set_channel(user_id, destination_channel_ids, original_text, replace_text, my_link, web_link, my_username, command_type):
+def set_channel(command_type, destination_channel_ids, original_text, replace_text, my_link, web_link, my_username):
     collection = init_db()
     channel_data = {
-        "user_id": user_id,
+        "command_type": command_type,
         "destination_channel_ids": destination_channel_ids,
         "original_text": original_text,
         "replace_text": replace_text,
         "my_link": my_link,
         "web_link": web_link,
-        "my_username": my_username,
-        "command_type": command_type
+        "my_username": my_username
     }
+
+    # Update or insert the data for the given command_type
     collection.update_one(
-        {"user_id": user_id},
+        {"command_type": command_type},
         {"$set": channel_data},
-        upsert=True
+        upsert=True  # If the command_type doesn't exist, create a new entry
     )
 
-def get_channel(user_id):
+def get_channel(command_type):
     collection = init_db()
-    return collection.find_one({"user_id": user_id})
+    return collection.find_one({
+        "command_type": command_type
+    })
 
 # Bot Event Handlers
 @StarBotsTamil.on(events.NewMessage(pattern="/start"))
@@ -143,25 +146,21 @@ async def forward_message(event, command_type=1):
     if event.message.text == "Bot Started!":
         return  # Ignore the start message if it contains "Bot Started!"
 
-    channel_data = get_channel(user_id)
+    # Fetch the channel configuration based on command_type
+    channel_data = get_channel(command_type)
     if not channel_data:
-        logger.error(f"No data found for user_id: {user_id}")
+        logger.error(f"No data found for command_type: {command_type}")
         return
 
-    command_type_data = next((config for config in channel_data if config.get("command_type") == command_type), None)
-    if not command_type_data:
-        logger.error(f"No settings found for command_type {command_type} for user_id: {user_id}")
-        return
-
-    destination_channels = command_type_data.get("destination_channel_ids", [])
-    original_text = command_type_data.get("original_text", "")
-    replace_text = command_type_data.get("replace_text", "")
-    my_link = command_type_data.get("my_link", "")
-    web_link = command_type_data.get("web_link", "")
-    my_username = command_type_data.get("my_username", "")
+    destination_channels = channel_data.get("destination_channel_ids", [])
+    original_text = channel_data.get("original_text", "")
+    replace_text = channel_data.get("replace_text", "")
+    my_link = channel_data.get("my_link", "")
+    web_link = channel_data.get("web_link", "")
+    my_username = channel_data.get("my_username", "")
 
     if not destination_channels:
-        logger.warning(f"No destination channels found for command_type {command_type} and user_id {user_id}")
+        logger.warning(f"No destination channels found for command_type {command_type}")
         return
 
     logger.info(f"Handling command_type {command_type} for user {user_id}: destination_channels={destination_channels}")
@@ -180,7 +179,7 @@ async def forward_message(event, command_type=1):
         )
         for destination_channel_id in destination_channels:
             await event.client.send_message(destination_channel_id, replaced_message)
-
+            
 async def replace_links_in_message(message, web_link, my_link, my_username, original_text, replace_text):
     if web_link:
         message = re.sub(r'https?://tcvvip5\.com/#/register\?r_code=44YWW823408', web_link, message)
