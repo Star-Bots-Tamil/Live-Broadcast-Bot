@@ -273,8 +273,8 @@ async def forward_message(event, command_type=1):
                 destination_channel_id = int(destination_channel_id)
 
                 # Try to get the entity using the destination channel ID
-                destination_channel = await event.client.get_entity(destination_channel_id)
-                await event.client.send_message(destination_channel, event.message)
+                #destination_channel = await event.client.get_entity(destination_channel_id)
+                await event.client.send_message(destination_channel_id, event.message)
                 logger.info(f"Message forwarded to {destination_channel_id}")
             except ValueError as e:
                 logger.error(f"Invalid entity ID for {destination_channel_id}: {e}")
@@ -294,8 +294,8 @@ async def forward_message(event, command_type=1):
                 destination_channel_id = int(destination_channel_id)
 
                 # Try to get the entity using the destination channel ID
-                destination_channel = await event.client.get_entity(destination_channel_id)
-                await event.client.send_message(destination_channel, replaced_message)
+                #destination_channel = await event.client.get_entity(destination_channel_id)
+                await event.client.send_message(destination_channel_id, replaced_message)
                 logger.info(f"Message forwarded to {destination_channel_id}")
             except ValueError as e:
                 logger.error(f"Invalid entity ID for {destination_channel_id}: {e}")
