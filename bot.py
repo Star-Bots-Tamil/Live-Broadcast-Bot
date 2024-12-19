@@ -269,6 +269,9 @@ async def forward_message(event, command_type=1):
         # Send the message to each destination channel
         for destination_channel_id in destination_channels:
             try:
+                # Ensure destination_channel_id is an integer (if needed)
+                destination_channel_id = int(destination_channel_id)
+
                 # Try to get the entity using the destination channel ID
                 destination_channel = await event.client.get_entity(destination_channel_id)
                 await event.client.send_message(destination_channel, event.message)
@@ -287,6 +290,9 @@ async def forward_message(event, command_type=1):
         # Send the replaced message to each destination channel
         for destination_channel_id in destination_channels:
             try:
+                # Ensure destination_channel_id is an integer (if needed)
+                destination_channel_id = int(destination_channel_id)
+
                 # Try to get the entity using the destination channel ID
                 destination_channel = await event.client.get_entity(destination_channel_id)
                 await event.client.send_message(destination_channel, replaced_message)
